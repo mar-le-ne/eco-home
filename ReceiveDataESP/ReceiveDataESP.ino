@@ -1,42 +1,36 @@
-#include <ESP8266WiFi.h>
-#include <ThingSpeak.h>
-/*
-const char* ssid = "Victor's iPhone X";
-const char* pass = "a1b2c3d4";
-WiFiClient client;
+/* ReceiveDataESP.ino
+ * 
+ * Program used in order to receive data over serial communication 
+ * from another Arduino board.
+ * 
+ * Connect Rx pin of the ESP to Tx pin of the Arduino board
+ * Connect Tx pin of the ESP to Rx pin of the Arduino board
+ * Connect both boards to GND
+ * 
+ * created 13/01/2022
+ * by Victor Leweke
+ * last modified 14/01/2022
+ */
 
-unsigned long channelID = 1629242; //your TS channal
-const char * APIKey = "3MUXL34UG6G33BCM"; //your TS API
-const char* server = "api.thingspeak.com";
-const int postDelay = 20 * 1000;
-*/
-int arr[2] = {0, 0};
+int const numVariables = 2;        // Define number of variables to be received
+int arr[numVariables];             // Create an empty array with size equal to number of variables
+
 void setup() {
 
   Serial.begin(115200);
-  //WiFi.begin(ssid, pass);
-  while (!Serial) { // wait for serial port to connect. 
+  while (!Serial) { // Make sure the connection is established
     ;
   }
 }
 
 
-void loop() {  
+void loop() {
 
-  if (Serial.available() > 3) {
-    for (int i = 0; i<2; i++) {
-      arr[i] = (int)Serial.parseInt();
-      Serial.println(arr[i]);
+  if (Serial.available() > numVariables+1) {
+    for (int i = 0; i < numVariables; i++) {
+      arr[i] = (int)Serial.parseInt();      // Each variable is assigned to an index in the array
+      Serial.println(arr[i]);               // For testing
     }
   }
-  /*// Write data on Thingspeak
-  ThingSpeak.begin(client);
-  client.connect(server, 80); 
-  ThingSpeak.setField(1, arr[0]); 
-  ThingSpeak.setField(2, arr[1]); 
-  ThingSpeak.writeFields(channelID, APIKey);
-  client.stop();
-  delay(postDelay);
-  */
   delay(1000);
 }
