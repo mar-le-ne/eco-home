@@ -3,14 +3,36 @@ window.onload = function () {
     // can (possibly) use 'jQuery' instead, if desired.
 
     let url =  "http://192.168.101.1:8081"; // "/API/BUTTON" //"http://localhost:8081/API/BUTTON"; // "25.57.47.113:8081"; //'http://localhost:8081/API/BUTTON'; // example: 'http://echo.jsontest.com/Hello/world'
-    const dataTags = ["HAS_LEFT", "FRIDGE", "HOME"];
-    const tagToDiv = {"HAS_LEFT" : "#has_left", "FRIDGE" : "#fridge" } // preface with '#'.
+    const buttonDivName = "#buttonLeftHouse";
+    const fridgeDivName = "#fridgeOpen";
+    const dataTags = ["HOME", "FRIDGE", "LIGHT", "FAUCET", "SHOWER"]; // names used in the server's stored JSON.
+    const tagToDiv = {"HOME" : buttonDivName, "FRIDGE" : fridgeDivName, 
+        "LIGHT" : "#lightOn", "FAUCET" : "#faucetOn", 
+        "SHOWER" : "#showerTime" } // preface with '#' to indiciate a div to jQuery.
 
-
-
+    // support functions:
     function gebi(id) { // alias for "get element by id":
         return document.getElementById(id);
     }
+
+    function stringToBoolean (string) { // source: https://stackoverflow.com/a/1414175
+        switch(string.toLowerCase().trim()){
+            case "true": 
+            case "yes": 
+            case "1": 
+                return true;
+    
+            case "false": 
+            case "no": 
+            case "0": 
+            case null: 
+              return false;
+    
+            default: 
+              return JSON.parse(string.toLowerCase())
+        }
+    }
+
 
     function fetchData() {
         console.log("fetching data.");
@@ -22,6 +44,9 @@ window.onload = function () {
         return ajaxreq; // return the ajax-request object.
     }
 
+    function updateDiv(divName, value) {
+        $(divName).html(value); 
+    }
     
     let atHome = true; // bool relating to whether user is home or not. updated on fetch.
     function setPageData(data) { // data is a JSON object 
@@ -29,11 +54,16 @@ window.onload = function () {
         for (const [key, value] of Object.entries(data)) { // iterate through the data-object's key/value pairs.
             if (dataTags.includes(key)) {
                 if (!(tagToDiv[key] === 'undefined')) { // check that the key is an actual key of tagToDiv.
-                    divName = tagToDiv[key]; // find the name of the div from the key. i.e. #fridge = tagToDiv["FRIDGE"] 
-                    $(divName).html(value); // Assign the divs on the html page to the retrieved data
+                    
+                    let divName = tagToDiv[key]; // find the name of the div from the key. i.e. #fridge = tagToDiv["FRIDGE"] 
+                    //updateDiv(divName, value); // Assign the divs on the html page to the retrieved data
                 }
                 if (key == "HOME") {
-                    atHome = Boolean(parseInt(value));
+                    atHome = stringToBoolean(value);
+                    updateButtonText();
+                }
+                else if (key == "FRIDGE") {
+                    updateFridgeText(value);
                 }
             }
             else {
@@ -57,28 +87,44 @@ window.onload = function () {
     }
 
 
-    function postHomeStatus(isLeaving) { // isLeaving should be a 1 if user is leaving the house (isHome), 0 if user is returning. 
+    function postHomeStatus(isHome) { // isLeaving should be a 1 if user is leaving the house (isHome), 0 if user is returning. 
         const api_extension = "/API/HOME";
         let urlAPI = url + api_extension;
-        let ajaxreq = $.post(urlAPI, {"HOME" : isLeaving}); // 
+        let isLeaving = !isHome;
+        let ajaxreq = $.post(urlAPI, "HOME=" + isLeaving); // send a post request with the logic
         return ajaxreq;
+    }
+
+    function updateFridgeText(isFridgeOpen) {
+        let divName = fridgeDivName;
+        let divText = isFridgeOpen ? ("Your fridge is open! You should close it.") : ("Your fridge is closed.")
+        updateDiv(divName, divText)
+    }
+
+    function updateButtonText() {
+        let divName = buttonDivName;
+        let buttonText = atHome ? ("I've left the house.") : ("I've returned");
+        updateDiv(divName, buttonText);
     }
 
     // Button for "Left home" & "returned":
     gebi("buttonLeftHouse").addEventListener("click", function (event) {
-        let divName = "#buttonLeftHouse";
-        $(divName).html("Initiating procedures...");
-        $.when(postHomeStatus(atHome)).done(function() { // send post request and, when its done:
-            $.when(fetchAndSetData()).done( function() { // fetch data. 
-                // and when fetch is done, update the button's text.
-                if (atHome) {
-                    $(divName).html("I've left the house.");
-                }
-                else {
-                    $(divName).html("I've returned");
-                }
-            })            
-        })
+        console.log("Home status is: " + atHome)
+        let divName = buttonDivName;
+        const stallMsg = "loading";
+        if (! (atHome === stallMsg) ) {
+            updateDiv(divName, "Initiating procedures...")
+            $.when(postHomeStatus(atHome)).done(function() { // send post request and, when its done:
+                $.when(fetchAndSetData()).done( function() { // fetch data. 
+                    // and when fetch is done, update the button's text.
+                    updateButtonText();
+                })            
+            })
+        }
+        else {
+            alert("still posting");
+        }
+        atHome = stallMsg;
     });
 
 

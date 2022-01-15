@@ -4,9 +4,12 @@ from http.server import HTTPServer, BaseHTTPRequestHandler
 from json import dumps
 from socket import gethostname, gethostbyname
 
-stored_data = {"HAS_LEFT": "5000!",
-               "FRIDGE": "false",
-               "HOME": "true"}
+stored_data = { "HOME": "true",
+                "FRIDGE": "false",
+                "LIGHT" : "false",
+                "FAUCET" : "false",
+                "SHOWER" : "0"
+               }
 
 document_path = "webpage_lib/"
 
@@ -30,6 +33,7 @@ class Serv(BaseHTTPRequestHandler):
             element = parsed_data[0]
             result = parsed_data[1]
             stored_data[element] = result
+            print(f"Server will store {result} in {element}")
         # Response:
         content = "success!"
         self.send_response(200)
