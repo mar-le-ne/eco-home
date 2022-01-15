@@ -7,14 +7,28 @@
       <body>
             <h1> WELCOME TO YOUR PERSONAL ECOHOME USER PAGE</h1>
             <h2> Are you currently present in your house? </h2>
-            <div>
-                  <button type="button" id="buttonLeftHouse"> <b> I've left the house. </b> </button>
-            </div>      
+            <button type="button" id="buttonLeftHouse"> <b> I've left the house. </b> </button>
             <h2> Lighting: </h2>
-            <p> Here is some data below: </p>
+            <div id="lightOn">
+                  <p>Your light is not on. </p>
+            </div>
+            <p> 
+                  EcoHome has saved you 0 minutes of lighting. 
+            </p>
+            <h2> Fridge: </h2>
+            <div id="fridge">
+                  <p> Your fridge is closed. </p>
+            </div>
+            <h2> Water: </h2>
+            <div id="faucetOn">
+                  <p>The faucet is not running</p>
+            </div>
+            <div id="showerTime">
+                  <p> You've showered 0 minutes. </p>
+            </div>
        <!-- scripts: -->
-       <script src="server_lib/jquery-3.6.0.min.js"> </script>
-       <script src="server_lib/updatePage.js"> </script>
+       <script src="jquery-3.6.0.min.js"> </script>
+       <script src="updatePage.js"> </script>
       </body>  
      
 
