@@ -21,14 +21,14 @@ eventDates = {
     "LIGHT_AUTO": 0
 }
 
+document_path = "webpage_lib/"
+
 def secondsToMinutes(sec):
     minute = 60
     return round(sec / minute, 2)
 
-document_path = "webpage_lib/"
 
-
-def is_element_stored(element):
+def is_element_valid(element):
     return element in stored_data.keys()
 
 
@@ -49,7 +49,7 @@ class Serv(BaseHTTPRequestHandler):
             parsed_data = file_content.split("=")  # do some JSON stuff here.
             element = parsed_data[0].upper()
             result = parsed_data[1]
-            if is_element_stored(element):
+            if is_element_valid(element):
                 # Special POST cases:
                 if element == "SHOWER":  # handle when status of SHOWER changes:
                     if result.lower() == "true" and stored_data[element].lower() == "false":  # if SHOWER turns on
@@ -60,7 +60,7 @@ class Serv(BaseHTTPRequestHandler):
                                                          secondsToMinutes(eventDates[element] - time.time()))
                         eventDates[element] = 0
                 if element == "LIGHT_AUTO":  # Case of arduino automatically turning off the lights.
-                    if result.lower() == "true" and stored_data["LIGHT"].lower() == "true":  # if SHOWER turns on
+                    if result.lower() == "true":  # if LIGHT is automatically turned off on
                         eventDates[element] = time.time()
                         stored_data[element] = result  # Store that the light was turned off automatically.
                 if element == "LIGHT":
@@ -95,7 +95,6 @@ class Serv(BaseHTTPRequestHandler):
                 self.end_headers()
                 self.wfile.write(bytes(content, 'utf-8'))
 
-
     def do_GET(self):
         file_to_open = None
         file_ext = self.path.split(".")  # file extension of the requested file. if no file-extension is found,
@@ -117,7 +116,7 @@ class Serv(BaseHTTPRequestHandler):
                 if element == "ALL":
                     self.send_response(200)
                     file_to_open = dumps(stored_data)
-                elif is_element_stored(element):
+                elif is_element_valid(element):
                     self.send_response(200)
                     file_to_open = dumps(stored_data[element])
                 else:
@@ -136,7 +135,13 @@ class Serv(BaseHTTPRequestHandler):
         except Exception as e:
             file_to_open = "File not found"
             print(f"exception: {e}")
-            self.send_response(404)
+            self.send_response(403)
+            # Response:
+            content = "403, server handshake"
+            self.send_header("Content-Length", len(content))
+            self.send_header("Content-type", "text/html")
+            self.end_headers()
+            self.wfile.write(bytes(content, 'utf-8'))
         print(f"path is: {self.path}")
 
 
@@ -152,9 +157,8 @@ if __name__ == '__main__':
     httpd = HTTPServer((ip, port), Serv)  # '192.168.152.233' #  '192.168.101.1' # 'localhost'
 
     httpd.serve_forever()
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
-
+    # Server can be shutdown using Ctrl + C,
+    # Alternatively, some IDEs have a red square for stopping functions.
 
 """ Old code:
     host_name = gethostname()
