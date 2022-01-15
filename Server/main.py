@@ -75,16 +75,26 @@ class Serv(BaseHTTPRequestHandler):
                         stored_data["LIGHT_AUTO"] = "false"  # Store that the light was turned on manually.
                 else:  # General POST case.
                     stored_data[element] = result
+                # Succesful POST request.
+                # Response:
                 # print(f"Server will store {result} in {element}")
+                self.send_response(200)
+                # Response:
+                content = "200, server handshake"
+                self.send_header("Content-Length", len(content))
+                self.send_header("Content-type", "text/html")
+                self.end_headers()
+                self.wfile.write(bytes(content, 'utf-8'))
             else:
                 print(f"{element} is invalid and {result} will not be stored")
-        # Response:
-        content = "server handshake"
-        self.send_response(200)
-        self.send_header("Content-Length", len(content))
-        self.send_header("Content-type", "text/html")
-        self.end_headers()
-        self.wfile.write(bytes(content, 'utf-8'))
+                self.send_response(403)
+                # Response:
+                content = "403, server handshake"
+                self.send_header("Content-Length", len(content))
+                self.send_header("Content-type", "text/html")
+                self.end_headers()
+                self.wfile.write(bytes(content, 'utf-8'))
+
 
     def do_GET(self):
         file_to_open = None
@@ -143,15 +153,20 @@ from time import sleep
 from zeroconf import IPVersion, ServiceInfo, Zeroconf
 
 if __name__ == '__main__':
-    print("TEST")
-    host_name = gethostname()
-    local_ip = gethostbyname(host_name)
-    print(f"PC's Local IP Is: {local_ip}")
-    # local_ip = "localhost"
-    port = 8081
-    print(f"local ip is: {local_ip}")
-    httpd = HTTPServer(("192.168.101.1", port), Serv)  # '192.168.152.233' # 'localhost'
+    print("SERVER BEGINS")
+    ip = '192.168.152.233'  # IP, insert using method from documentation.
+    port = 8081  # use this port. Shouldn't be changed.
+    httpd = HTTPServer((ip, port), Serv)  # '192.168.152.233' #  '192.168.101.1' # 'localhost'
 
     httpd.serve_forever()
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
+
+
+""" Old code:
+    host_name = gethostname()
+    local_ip = gethostbyname("localhost") # host_name
+    print(f"hostname is {host_name}")
+    print(f"PC's Local IP Is: {local_ip}")
+    # local_ip = "localhost
+"""

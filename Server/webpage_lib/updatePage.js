@@ -1,8 +1,11 @@
 window.onload = function () {
     // '$' in the code is an alias for the global jQuery object. it is used to access the jQuery members.
     // can (possibly) use 'jQuery' instead, if desired.
-
-    let url =  "http://192.168.101.1:8081"; // "/API/BUTTON" //"http://localhost:8081/API/BUTTON"; // "25.57.47.113:8081"; //'http://localhost:8081/API/BUTTON'; // example: 'http://echo.jsontest.com/Hello/world'
+    const port = "8081";
+    const protocol = "http://"
+    let ip = "192.168.152.233" // IP, insert using method from documentation.
+    const url =  protocol + ip + ":" + port; 
+    // "/API/BUTTON" //"http://localhost:8081/API/BUTTON"; // "25.57.47.113:8081"; //'http://localhost:8081/API/BUTTON'; // example: 'http://echo.jsontest.com/Hello/world'
     const buttonDivName = "#buttonLeftHouse";
     const fridgeDivName = "#fridgeOpen";
     const dataTags = ["HOME", "FRIDGE", "LIGHT", "LIGHT_TIME",  "LIGHT_AUTO", "FAUCET", "SHOWER", "SHOWER_TIME"]; // names used in the server's stored JSON.
@@ -36,12 +39,12 @@ window.onload = function () {
 
     function fetchData() {
         console.log("fetching data.");
-        const api_extension = "/API/ALL";
-        let urlAPI = url + api_extension;
+        const apiExtension = "/API/ALL";
+        let urlAPI = url + apiExtension;
         //console.log(urlAPI);
-        let ajaxreq = $.get(urlAPI, function(data) {
+        let ajaxReq = $.get(urlAPI, function(data) {
         });
-        return ajaxreq; // return the ajax-request object.
+        return ajaxReq; // return the ajax-request object.
     }
 
     function updateDiv(divName, value) {
@@ -54,7 +57,7 @@ window.onload = function () {
         for (const [key, value] of Object.entries(data)) { // iterate through the data-object's key/value pairs.
             if (dataTags.includes(key)) {
                 if (!(tagToDiv[key] === 'undefined')) { // check that the key is an actual key of tagToDiv.
-                    
+                    // not really used anymore.
                     let divName = tagToDiv[key]; // find the name of the div from the key. i.e. #fridge = tagToDiv["FRIDGE"] 
                     //updateDiv(divName, value); // Assign the divs on the html page to the retrieved data
                 }
@@ -89,11 +92,12 @@ window.onload = function () {
 
 
     function postHomeStatus(isHome) { // isLeaving should be a 1 if user is leaving the house (isHome), 0 if user is returning. 
-        const api_extension = "/API/HOME";
-        let urlAPI = url + api_extension;
+        const path = "HOME"
+        const apiExtension = "/API/" + path;
+        let urlAPI = url + apiExtension;
         let isLeaving = !isHome;
-        let ajaxreq = $.post(urlAPI, "HOME=" + isLeaving); // send a post request with the logic
-        return ajaxreq;
+        let ajaxReq = $.post(urlAPI, path + "=" + isLeaving); // send a post request with the logic
+        return ajaxReq;
     }
 
     function updateFridgeText(isFridgeOpen) {
