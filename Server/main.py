@@ -145,13 +145,6 @@ def load_binary(filename):
         return file_handle.read()
 
 
-import argparse
-import logging
-import socket
-from time import sleep
-
-from zeroconf import IPVersion, ServiceInfo, Zeroconf
-
 if __name__ == '__main__':
     print("SERVER BEGINS")
     ip = '192.168.152.233'  # IP, insert using method from documentation.
