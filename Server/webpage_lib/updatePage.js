@@ -5,7 +5,7 @@ window.onload = function () {
     let url =  "http://192.168.101.1:8081"; // "/API/BUTTON" //"http://localhost:8081/API/BUTTON"; // "25.57.47.113:8081"; //'http://localhost:8081/API/BUTTON'; // example: 'http://echo.jsontest.com/Hello/world'
     const buttonDivName = "#buttonLeftHouse";
     const fridgeDivName = "#fridgeOpen";
-    const dataTags = ["HOME", "FRIDGE", "LIGHT", "FAUCET", "SHOWER"]; // names used in the server's stored JSON.
+    const dataTags = ["HOME", "FRIDGE", "LIGHT", "LIGHT_TIME",  "LIGHT_AUTO", "FAUCET", "SHOWER", "SHOWER_TIME"]; // names used in the server's stored JSON.
     const tagToDiv = {"HOME" : buttonDivName, "FRIDGE" : fridgeDivName, 
         "LIGHT" : "#lightOn", "FAUCET" : "#faucetOn", 
         "SHOWER" : "#showerTime" } // preface with '#' to indiciate a div to jQuery.
@@ -36,7 +36,7 @@ window.onload = function () {
 
     function fetchData() {
         console.log("fetching data.");
-        const api_extension = "/API/all/";
+        const api_extension = "/API/ALL";
         let urlAPI = url + api_extension;
         //console.log(urlAPI);
         let ajaxreq = $.get(urlAPI, function(data) {
@@ -63,7 +63,8 @@ window.onload = function () {
                     updateButtonText();
                 }
                 else if (key == "FRIDGE") {
-                    updateFridgeText(value);
+                    let isFridgeOpen = stringToBoolean(value);
+                    updateFridgeText(isFridgeOpen);
                 }
             }
             else {
