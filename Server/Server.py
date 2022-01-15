@@ -1,9 +1,16 @@
-# This is a sample Python script.
+# This is a Python script for running the Server of EcoHome.
 
+
+# from socket import gethostname, gethostbyname
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from json import dumps
-from socket import gethostname, gethostbyname
 from time import time
+
+# BEFORE IP
+
+ip = "192.168.1.13"  # IP, insert using method from documentation.
+# AFTER IP
+port = 8081  # use this port. Shouldn't be changed.
 
 # Data sent and accessed with the API:
 stored_data = {"HOME": "true",  # POST from webpage, GET from arduino
@@ -22,6 +29,7 @@ eventDates = {
 }
 
 document_path = "webpage_lib/"
+
 
 def secondsToMinutes(sec):
     minute = 60
@@ -53,15 +61,15 @@ class Serv(BaseHTTPRequestHandler):
                 # Special POST cases:
                 if element == "SHOWER":  # handle when status of SHOWER changes:
                     if result.lower() == "true" and stored_data[element].lower() == "false":  # if SHOWER turns on
-                        eventDates[element] = time.time()
+                        eventDates[element] = int(time())
                     elif result.lower() == "false" and stored_data[element].lower() == "true":  # if SHOWER turns off
                         current_shower_time = float(stored_data["SHOWER_TIME"])
                         stored_data["SHOWER_TIME"] = str(current_shower_time +
-                                                         secondsToMinutes(eventDates[element] - time.time()))
+                                                         secondsToMinutes(eventDates[element] - time()))
                         eventDates[element] = 0
                 if element == "LIGHT_AUTO":  # Case of arduino automatically turning off the lights.
                     if result.lower() == "true":  # if LIGHT is automatically turned off on
-                        eventDates[element] = time.time()
+                        eventDates[element] = int(time())
                         stored_data[element] = result  # Store that the light was turned off automatically.
                 if element == "LIGHT":
                     stored_data[element] = result  # Save the current status of light
@@ -70,18 +78,18 @@ class Serv(BaseHTTPRequestHandler):
                     if result.lower() == "true" and stored_data["LIGHT_AUTO"].lower() == "true":
                         current_light_time = float(stored_data["LIGHT_TIME"])
                         stored_data["SHOWER_TIME"] = str(current_light_time +
-                                                         secondsToMinutes(eventDates["LIGHT_AUTO"] - time.time()))
+                                                         secondsToMinutes(eventDates["LIGHT_AUTO"] - time()))
                         eventDates[element] = 0
                         stored_data["LIGHT_AUTO"] = "false"  # Store that the light was turned on manually.
                 else:  # General POST case.
                     stored_data[element] = result
-                # Succesful POST request.
+                # Successful POST request.
                 # Response:
                 # print(f"Server will store {result} in {element}")
                 self.send_response(200)
                 # Response:
                 content = "200, server handshake"
-                self.send_header("Content-Length", len(content))
+                self.send_header("Content-Length", f"{len(content)}")
                 self.send_header("Content-type", "text/html")
                 self.end_headers()
                 self.wfile.write(bytes(content, 'utf-8'))
@@ -90,7 +98,7 @@ class Serv(BaseHTTPRequestHandler):
                 self.send_response(403)
                 # Response:
                 content = "403, server handshake"
-                self.send_header("Content-Length", len(content))
+                self.send_header("Content-Length", f"{len(content)}")
                 self.send_header("Content-type", "text/html")
                 self.end_headers()
                 self.wfile.write(bytes(content, 'utf-8'))
@@ -138,7 +146,7 @@ class Serv(BaseHTTPRequestHandler):
             self.send_response(403)
             # Response:
             content = "403, server handshake"
-            self.send_header("Content-Length", len(content))
+            self.send_header("Content-Length", f"{len(content)}")
             self.send_header("Content-type", "text/html")
             self.end_headers()
             self.wfile.write(bytes(content, 'utf-8'))
@@ -152,10 +160,7 @@ def load_binary(filename):
 
 if __name__ == '__main__':
     print("SERVER BEGINS")
-    ip = '192.168.152.233'  # IP, insert using method from documentation.
-    port = 8081  # use this port. Shouldn't be changed.
     httpd = HTTPServer((ip, port), Serv)  # '192.168.152.233' #  '192.168.101.1' # 'localhost'
-
     httpd.serve_forever()
     # Server can be shutdown using Ctrl + C,
     # Alternatively, some IDEs have a red square for stopping functions.

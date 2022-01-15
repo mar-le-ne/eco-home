@@ -3,7 +3,9 @@ window.onload = function () {
     // can (possibly) use 'jQuery' instead, if desired.
     const port = "8081";
     const protocol = "http://"
-    let ip = "192.168.152.233" // IP, insert using method from documentation.
+    // BEFORE IP
+    const ip = "192.168.1.13" // IP, insert using method from documentation.
+
     const url =  protocol + ip + ":" + port; 
     // "/API/BUTTON" //"http://localhost:8081/API/BUTTON"; // "25.57.47.113:8081"; //'http://localhost:8081/API/BUTTON'; // example: 'http://echo.jsontest.com/Hello/world'
     const buttonDivName = "#buttonLeftHouse";
