@@ -8,7 +8,7 @@ from time import time
 
 # BEFORE IP
 
-ip = "192.168.1.13"  # IP, insert using method from documentation.
+ip = "192.168.152.233"  # IP, insert using method from documentation.
 # AFTER IP
 port = 8081  # use this port. Shouldn't be changed.
 
