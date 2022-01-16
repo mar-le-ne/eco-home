@@ -10,9 +10,10 @@ window.onload = function () {
     // "/API/BUTTON" //"http://localhost:8081/API/BUTTON"; // "25.57.47.113:8081"; //'http://localhost:8081/API/BUTTON'; // example: 'http://echo.jsontest.com/Hello/world'
     const buttonDivName = "#buttonLeftHouse";
     const fridgeDivName = "#fridgeOpen";
+    const lightOnDivName = "#lightOn";
     const dataTags = ["HOME", "FRIDGE", "LIGHT", "LIGHT_TIME",  "LIGHT_AUTO", "FAUCET", "SHOWER", "SHOWER_TIME"]; // names used in the server's stored JSON.
     const tagToDiv = {"HOME" : buttonDivName, "FRIDGE" : fridgeDivName, 
-        "LIGHT" : "#lightOn", "FAUCET" : "#faucetOn", 
+        "LIGHT" : lightOnDivName, "FAUCET" : "#faucetOn", 
         "SHOWER" : "#showerTime" } // preface with '#' to indiciate a div to jQuery.
 
     // support functions:
@@ -57,26 +58,10 @@ window.onload = function () {
     function setPageData(data) { // data is a JSON object 
         console.log("setting data.");
         for (const [key, value] of Object.entries(data)) { // iterate through the data-object's key/value pairs.
-            if (dataTags.includes(key)) {
-                if (!(tagToDiv[key] === 'undefined')) { // check that the key is an actual key of tagToDiv.
-                    // not really used anymore.
-                    let divName = tagToDiv[key]; // find the name of the div from the key. i.e. #fridge = tagToDiv["FRIDGE"] 
-                    //updateDiv(divName, value); // Assign the divs on the html page to the retrieved data
-                }
-                if (key == "HOME") {
-                    atHome = stringToBoolean(value);
-                    updateButtonText();
-                }
-                else if (key == "FRIDGE") {
-                    let isFridgeOpen = stringToBoolean(value);
-                    updateFridgeText(isFridgeOpen);
-                }
-            }
-            else {
-                console.log("tag " + key + " is incorrect.");
-            }
-    
+            wrapPageDataSpecifics(key,value);            
         }
+
+    
     }
 
      // Fetch the latest data from the server, then update the webpage.
@@ -92,6 +77,56 @@ window.onload = function () {
         return fetch_promise; // if we want to fetchAndSet, and also do something depending on the fetch being completed.
     }
 
+    function wrapPageDataSpecifics(key, value) {
+        if (dataTags.includes(key)) {
+            switch(key) {
+                case "HOME": 
+                    atHome = stringToBoolean(value);
+                    updateButtonText();
+                    break;
+                case "FRIDGE":
+                    let isFridgeOpen = stringToBoolean(value);
+                    updateFridgeText(isFridgeOpen);
+                    break;
+                case "LIGHT":
+                    let isLightOn = stringToBoolean(value);
+                    updateLightOnText(isLightOn);   
+                    break;
+                case "LIGHT_TIME":
+                    let lightTime = parseFloat(value);
+                    updateLightTimeText(lightTime);
+                    break;
+                case "LIGHT_AUTO":
+                    // the webpage doesn't really care about this value.
+                    break;
+                case "FAUCET":
+                    let isFaucetRunning = stringToBoolean(value);
+                    updateFaucetRunningText(isFaucetRunning);   
+                    break;
+                case "SHOWER":
+                    let isShowerRunning = stringToBoolean(value);
+                    updateShowerRunningText(isShowerRunning);   
+                    break;
+                case "SHOWER_TIME":
+                    let showerTime = parseFloat(value);
+                    updateShowerTimeText(showerTime);   
+                    break;
+                default: 
+                    if (!(tagToDiv[key] === 'undefined')) { // check that the key is an actual key of tagToDiv.
+                        // not really used anymore.
+                        let divName = tagToDiv[key]; // find the name of the div from the key. i.e. #fridge = tagToDiv["FRIDGE"] 
+                        // updateDiv(divName, value); // Assign the divs on the html page to the retrieved data
+                        console.log(key + " doesn't have a proper place... sad :(");
+                    }
+                    else {
+                        console.log("tag " + key + " is incorrect.");
+                    } 
+                }
+        }
+        else {
+            console.log("tag " + key + " is very incorrect.");
+        }
+    } 
 
     function postHomeStatus(isHome) { // isLeaving should be a 1 if user is leaving the house (isHome), 0 if user is returning. 
         const path = "HOME"
@@ -102,17 +137,49 @@ window.onload = function () {
         return ajaxReq;
     }
 
+    function updateButtonText() {
+        let divName = buttonDivName;
+        let buttonText = atHome ? ("I've left the house.") : ("I've returned");
+        updateDiv(divName, buttonText);
+    }
+
     function updateFridgeText(isFridgeOpen) {
         let divName = fridgeDivName;
         let divText = isFridgeOpen ? ("Your fridge is open! You should close it.") : ("Your fridge is closed.")
         updateDiv(divName, divText)
     }
 
-    function updateButtonText() {
-        let divName = buttonDivName;
-        let buttonText = atHome ? ("I've left the house.") : ("I've returned");
-        updateDiv(divName, buttonText);
+    function updateLightOnText(isLightOn) {
+        let divName = lightOnDivName;
+        let divText = isLightOn ? ("Your light is on. Are you sure you <it> really </it> need it?") : ("Your light is off.")
+        updateDiv(divName, divText)
     }
+
+    function updateLightTimeText(lightTime) {
+        let divName = lightTimeDivName;
+        let divText = "EcoHome has saved you " + String(lightTime) + " minutes of lighting."; 
+        updateDiv(divName, divText)
+    }
+
+    function updateFaucetRunningText(isFaucetRunning) {
+        let divName = faucetDivName;
+        let divText = isFaucetRunning ? ("What are you doing on your phone, you're using the sink right now. <b> Right? </b>") : ("Your faucet is turned off :D")
+        updateDiv(divName, divText)
+    }
+
+    function updateShowerRunningText(isShowerRunning) { 
+        let divName = faucetDivName;
+        let divText = isShowerRunning ? ("Looking at the phone.. in the shower? I swear to God.<br>Oh, never mind. The showerhead's just dripping I guess") : ("Your shower is turned off")
+        updateDiv(divName, divText)   
+    }
+
+    function updateShowerTimeText(showerTime) {
+        let divName = lightTimeDivName;
+        let divText = "You've showered " + String(showerTime) + " minutes. Try to be quicker, please."; 
+        updateDiv(divName, divText)
+    }
+
+
 
     // Button for "Left home" & "returned":
     gebi("buttonLeftHouse").addEventListener("click", function (event) {
