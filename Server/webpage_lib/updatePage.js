@@ -3,11 +3,7 @@ window.onload = function () {
     // can (possibly) use 'jQuery' instead, if desired.
     const port = "8081";
     const protocol = "http://"
-    // BEFORE IP
-    const ip = "192.168.152.233" // IP, insert using method from documentation.
-
-    const url =  protocol + ip + ":" + port; 
-    // "/API/BUTTON" //"http://localhost:8081/API/BUTTON"; // "25.57.47.113:8081"; //'http://localhost:8081/API/BUTTON'; // example: 'http://echo.jsontest.com/Hello/world'
+    
     const buttonDivName = "#buttonLeftHouse";
     const fridgeDivName = "#fridgeOpen";
     const lightOnDivName = "#lightOn";
@@ -183,31 +179,41 @@ window.onload = function () {
         updateDiv(divName, divText)
     }
 
+    function onIPtextLoaded(ip_text) {
+        ip = ip_text;
+        url = protocol + ip + ":" + port
+
+        // Call the function on page-load, and then poll again continuously by interval:
+        fetchAndSetData();
+        const pollInterval = 15 * 1000; // 15 seconds.
+        setInterval( fetchAndSetData, pollInterval);
+
+        // event listener for the "Left home" & "returned" button: 
+        gebi("buttonLeftHouse").addEventListener("click", function (event) {
+            console.log("Home status is: " + atHome)
+            let divName = buttonDivName;
+            const stallMsg = "loading";
+            if (! (atHome === stallMsg) ) {
+                updateDiv(divName, "Initiating procedures...")
+                $.when(postHomeStatus(atHome)).done(function() { // send post request and, when its done:
+                    $.when(fetchAndSetData()).done( function() { // fetch data. 
+                        // and when fetch is done, update the button's text.
+                        updateButtonText();
+                    })            
+                })
+            }
+            else {
+                alert("still posting");
+            }
+            atHome = stallMsg;
+        });
+    }
+    
+    let ip = "IP not loaded yet" // IP, insert using method from documentation.
+    let url =  "IP not loaded yet - URL" ; 
+    fetch('ip.txt')
+        .then(response => response.text())
+            .then(text => onIPtextLoaded(text));
 
 
-    // Button for "Left home" & "returned":
-    gebi("buttonLeftHouse").addEventListener("click", function (event) {
-        console.log("Home status is: " + atHome)
-        let divName = buttonDivName;
-        const stallMsg = "loading";
-        if (! (atHome === stallMsg) ) {
-            updateDiv(divName, "Initiating procedures...")
-            $.when(postHomeStatus(atHome)).done(function() { // send post request and, when its done:
-                $.when(fetchAndSetData()).done( function() { // fetch data. 
-                    // and when fetch is done, update the button's text.
-                    updateButtonText();
-                })            
-            })
-        }
-        else {
-            alert("still posting");
-        }
-        atHome = stallMsg;
-    });
-
-
-    // Call the function on page-load, and then poll again continuously by interval:
-    fetchAndSetData();
-    const pollInterval = 15 * 1000; // 15 seconds.
-    setInterval( fetchAndSetData, pollInterval);
 }

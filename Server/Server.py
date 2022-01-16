@@ -6,9 +6,19 @@ from http.server import HTTPServer, BaseHTTPRequestHandler
 from json import dumps
 from time import time
 
-# BEFORE IP
 
-ip = "192.168.152.233"  # IP, insert using method from documentation.
+
+def read_IP_from_file():
+    ip_file = "webpage_lib/ip.txt"
+    with open(ip_file, "r") as f:
+        contents = f.read()
+    return contents
+
+# BEFORE IP
+# ip = "192.168.152.233"  # IP, insert using method from documentation.
+ip = "1"
+
+
 # AFTER IP
 port = 8081  # use this port. Shouldn't be changed.
 
@@ -159,8 +169,14 @@ def load_binary(filename):
 
 
 if __name__ == '__main__':
-    print("SERVER BEGINS")
-    httpd = HTTPServer((ip, port), Serv)  # '192.168.152.233' #  '192.168.101.1' # 'localhost'
+    try:
+        IP = read_IP_from_file()
+        httpd = HTTPServer((IP, port), Serv)
+        print("SERVER BEGINS")
+    except Exception as e:
+        print("There's probably an issue with the ip.txt file")
+        print(f"error is: {e}")
+        IP = "Check the ip.txt file"
     httpd.serve_forever()
     # Server can be shutdown using Ctrl + C,
     # Alternatively, some IDEs have a red square for stopping functions.
