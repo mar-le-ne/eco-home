@@ -67,9 +67,7 @@ window.onload = function () {
     function fetchAndSetData() {
         // when the data has been loaded, call the setPageData function. This is necessary because requests are done asynchronously.
         let fetch_promise = fetchData();
-        console.log("TEST");
         $.when(fetch_promise).done(function(fetch_result) {
-            console.log("TEST2");
             response_text = fetch_result;
             response_text = JSON.parse(response_text); 
             //console.log(response_text);
