@@ -180,7 +180,7 @@ window.onload = function () {
     }
 
     function onIPtextLoaded(ip_text) {
-        ip = ip_text;
+        ip = ip_text.trim();
         url = protocol + ip + ":" + port
 
         // Call the function on page-load, and then poll again continuously by interval:
