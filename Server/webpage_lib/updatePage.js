@@ -7,14 +7,15 @@ window.onload = function () {
     const buttonDivName = "#buttonLeftHouse";
     const fridgeDivName = "#fridgeOpen";
     const lightOnDivName = "#lightOn";
+    const forgotLightDivName = "#forgotLight";
     const lightTimeDivName = "#lightTime"
     const faucetDivName = "#faucetOn"
     const showerDivName = "#showerRunning";
     const showerTimeDivName = "#showerTime"
-    const dataTags = ["HOME", "FRIDGE", "LIGHT", "LIGHT_TIME",  "LIGHT_AUTO", "FAUCET", "SHOWER", "SHOWER_TIME"]; // names used in the server's stored JSON.
+    const dataTags = ["HOME", "FRIDGE", "LIGHT", "FORGOT_LIGHT", "LIGHT_TIME",  "LIGHT_AUTO", "FAUCET", "SHOWER", "SHOWER_TIME"]; // names used in the server's stored JSON.
     const tagToDiv = {"HOME" : buttonDivName, "FRIDGE" : fridgeDivName, 
-        "LIGHT" : lightOnDivName, "LIGHT_TIME": lightTimeDivName, "FAUCET" : faucetDivName, 
-        "SHOWER" :  showerDivName, "SHOWER_TIME" : showerTimeDivName } // preface with '#' to indiciate a div to jQuery.
+        "LIGHT" : lightOnDivName, "FORGOT_LIGHT" : forgotLightDivName, "LIGHT_TIME": lightTimeDivName, 
+        "FAUCET" : faucetDivName, "SHOWER" :  showerDivName, "SHOWER_TIME" : showerTimeDivName} // preface with '#' to indiciate a div to jQuery.
 
     // support functions:
     function gebi(id) { // alias for "get element by id":
@@ -60,15 +61,15 @@ window.onload = function () {
         for (const [key, value] of Object.entries(data)) { // iterate through the data-object's key/value pairs.
             wrapPageDataSpecifics(key,value);            
         }
-
-    
     }
 
      // Fetch the latest data from the server, then update the webpage.
     function fetchAndSetData() {
         // when the data has been loaded, call the setPageData function. This is necessary because requests are done asynchronously.
-        let fetch_promise = fetchData()
+        let fetch_promise = fetchData();
+        console.log("TEST");
         $.when(fetch_promise).done(function(fetch_result) {
+            console.log("TEST2");
             response_text = fetch_result;
             response_text = JSON.parse(response_text); 
             //console.log(response_text);
@@ -91,6 +92,10 @@ window.onload = function () {
                 case "LIGHT":
                     let isLightOn = stringToBoolean(value);
                     updateLightOnText(isLightOn);   
+                    break;
+                case "FORGOT_LIGHT":
+                    let hasForgottenLight = stringToBoolean(value);
+                    updateForgotLightText(hasForgottenLight );   
                     break;
                 case "LIGHT_TIME":
                     let lightTime = value;
@@ -155,6 +160,12 @@ window.onload = function () {
         updateDiv(divName, divText)
     }
 
+    function updateForgotLightText(hasForgottenLight) {
+        let divName = forgotLightDivName;
+        let divText = hasForgottenLight ? ("You forgot to turn off the light.") : (" ... ")
+        updateDiv(divName, divText)
+    }
+
     function updateLightTimeText(lightTime) {
         let divName = lightTimeDivName;
         let divText = "EcoHome has saved you " + lightTime + " minutes of lighting."; 
@@ -182,6 +193,7 @@ window.onload = function () {
     function onIPtextLoaded(ip_text) {
         ip = ip_text.trim();
         url = protocol + ip + ":" + port
+        console.log("URL IS: " + url);
 
         // Call the function on page-load, and then poll again continuously by interval:
         fetchAndSetData();

@@ -26,6 +26,7 @@ port = 8081  # use this port. Shouldn't be changed.
 stored_data = {"HOME": "true",  # POST from webpage, GET from arduino
                "FRIDGE": "false",  # POST from arduino
                "LIGHT": "false",  # POST from arduino
+               "FORGOT_LIGHT": "false",  # POST from arduino
                "LIGHT_TIME": "0",  # GET from webpage
                "FAUCET": "false",  # POST from arduino
                "SHOWER": "false",  # POST from arduino
@@ -85,12 +86,15 @@ class Serv(BaseHTTPRequestHandler):
                     stored_data[element] = result  # Save the current status of light
                     # and if it's turned on after being automatically turned off,
                     # store the amount of time the light was turned off.
-                    if result.lower() == "true" and stored_data["LIGHT_AUTO"].lower() == "true":
-                        current_light_time = float(stored_data["LIGHT_TIME"])
-                        stored_data["SHOWER_TIME"] = str(current_light_time +
-                                                         secondsToMinutes(eventDates["LIGHT_AUTO"] - time()))
-                        eventDates[element] = 0
-                        stored_data["LIGHT_AUTO"] = "false"  # Store that the light was turned on manually.
+
+                    if result.lower() == "true":  # the user no longer forgot to turn off the light
+                        stored_data["FORGOT_LIGHT"] = "false"
+                        if stored_data["LIGHT_AUTO"].lower() == "true":  # if the light was previously turned off automatically.
+                            current_light_time = float(stored_data["LIGHT_TIME"])
+                            stored_data["LIGHT_TIME"] = str(current_light_time +
+                                                             secondsToMinutes(eventDates["LIGHT_AUTO"] - time()))
+                            eventDates[element] = 0
+                            stored_data["LIGHT_AUTO"] = "false"  # Store that the light was turned on (manually).
                 else:  # General POST case.
                     stored_data[element] = result
                 # Successful POST request.

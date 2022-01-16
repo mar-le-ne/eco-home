@@ -188,6 +188,7 @@ bool GETreq(String target, String* dest) {
 #define HOME "HOME" 
 #define FRIDGE "FRIDGE"
 #define LIGHT "LIGHT"
+#define FORGOT_LIGHT "FOROT_LIGHT"
 #define FAUCET "FAUCET"
 #define SHOWER "SHOWER"
 #define LIGHT_AUTO "LIGHT_AUTO"
@@ -222,6 +223,15 @@ void POSTfridge(bool isFridgeOpen) {
 void POSTlight(bool isLightOn) {
   String target = LIGHT;
   String value = boolToString(isLightOn);
+  bool requestSuccess = POSTreq(target, value);
+  if (!requestSuccess) { // if request failed:
+    badRequest(target);
+  }
+}
+
+void POSTforgotlight() {
+  String target = FORGOT_LIGHT;
+  String value = boolToString(true); 
   bool requestSuccess = POSTreq(target, value);
   if (!requestSuccess) { // if request failed:
     badRequest(target);
