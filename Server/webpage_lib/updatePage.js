@@ -4,17 +4,21 @@ window.onload = function () {
     const port = "8081";
     const protocol = "http://"
     // BEFORE IP
-    const ip = "192.168.1.13" // IP, insert using method from documentation.
+    const ip = "192.168.152.233" // IP, insert using method from documentation.
 
     const url =  protocol + ip + ":" + port; 
     // "/API/BUTTON" //"http://localhost:8081/API/BUTTON"; // "25.57.47.113:8081"; //'http://localhost:8081/API/BUTTON'; // example: 'http://echo.jsontest.com/Hello/world'
     const buttonDivName = "#buttonLeftHouse";
     const fridgeDivName = "#fridgeOpen";
     const lightOnDivName = "#lightOn";
+    const lightTimeDivName = "#lightTime"
+    const faucetDivName = "#faucetOn"
+    const showerDivName = "#showerRunning";
+    const showerTimeDivName = "#showerTime"
     const dataTags = ["HOME", "FRIDGE", "LIGHT", "LIGHT_TIME",  "LIGHT_AUTO", "FAUCET", "SHOWER", "SHOWER_TIME"]; // names used in the server's stored JSON.
     const tagToDiv = {"HOME" : buttonDivName, "FRIDGE" : fridgeDivName, 
-        "LIGHT" : lightOnDivName, "FAUCET" : "#faucetOn", 
-        "SHOWER" : "#showerTime" } // preface with '#' to indiciate a div to jQuery.
+        "LIGHT" : lightOnDivName, "LIGHT_TIME": lightTimeDivName, "FAUCET" : faucetDivName, 
+        "SHOWER" :  showerDivName, "SHOWER_TIME" : showerTimeDivName } // preface with '#' to indiciate a div to jQuery.
 
     // support functions:
     function gebi(id) { // alias for "get element by id":
@@ -93,7 +97,7 @@ window.onload = function () {
                     updateLightOnText(isLightOn);   
                     break;
                 case "LIGHT_TIME":
-                    let lightTime = parseFloat(value);
+                    let lightTime = value;
                     updateLightTimeText(lightTime);
                     break;
                 case "LIGHT_AUTO":
@@ -108,7 +112,7 @@ window.onload = function () {
                     updateShowerRunningText(isShowerRunning);   
                     break;
                 case "SHOWER_TIME":
-                    let showerTime = parseFloat(value);
+                    let showerTime = value;
                     updateShowerTimeText(showerTime);   
                     break;
                 default: 
@@ -157,7 +161,7 @@ window.onload = function () {
 
     function updateLightTimeText(lightTime) {
         let divName = lightTimeDivName;
-        let divText = "EcoHome has saved you " + String(lightTime) + " minutes of lighting."; 
+        let divText = "EcoHome has saved you " + lightTime + " minutes of lighting."; 
         updateDiv(divName, divText)
     }
 
@@ -168,14 +172,14 @@ window.onload = function () {
     }
 
     function updateShowerRunningText(isShowerRunning) { 
-        let divName = faucetDivName;
+        let divName = showerDivName;
         let divText = isShowerRunning ? ("Looking at the phone.. in the shower? I swear to God.<br>Oh, never mind. The showerhead's just dripping I guess") : ("Your shower is turned off")
         updateDiv(divName, divText)   
     }
 
     function updateShowerTimeText(showerTime) {
-        let divName = lightTimeDivName;
-        let divText = "You've showered " + String(showerTime) + " minutes. Try to be quicker, please."; 
+        let divName = showerTimeDivName;
+        let divText = "You've showered " + showerTime + " minutes. Try to be quicker, please."; 
         updateDiv(divName, divText)
     }
 
