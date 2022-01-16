@@ -24,6 +24,7 @@ const String api_extension = "/API";
 
 void setupWIFI(String WiFiName, String WiFiPassword, String inputIP) {
   // set the global-scoped IP string and serverName:
+  #define WIFISETUP 1
   IP = inputIP;
   serverName =  protocol + IP + ":" + port;
   
@@ -48,8 +49,6 @@ void setupWIFI(String WiFiName, String WiFiPassword, String inputIP) {
   
 }
 
-
-
 bool isStringInStringArray(String value, const String Array[], int Size) {
   for(int i = 0; i < Size; i++) {
     if (value == Array[i]) {
@@ -58,7 +57,15 @@ bool isStringInStringArray(String value, const String Array[], int Size) {
   }
   return false;
 }
-  
+
+bool isWifiConnected() {
+  #ifndef WIFISETUP
+    Serial.println("You didn't run the setupWIFI(.,.,.) function yet");
+    return false;
+  #endif
+  return (WiFi.status() == WL_CONNECTED);  
+}
+ 
 
 // function for parsing general String expressions into boolean:
 bool parseBool(String input) {
@@ -89,10 +96,9 @@ bool POSTreq(String target, String value) {
   // SIGNATURE: 
   // Returns true if POST request was succesful, else will return false. 
   // 'target' is the name of your value, e.g. "LIGHT" for the light. Type: String
-  // 'value' is the value you want to send to the server, e.g. "true" if the light is turned on. Type: String (not int or bool).
-  
+  // 'value' is the value you want to send to the server, e.g. "true" if the light is turned on. Type: String (not int or bool).  
   int httpResponseCode = 0;
-  if(WiFi.status() != WL_CONNECTED){
+  if( !isWifiConnected() ) {
     Serial.println("WiFi is not connected.");
   }
   else { 
@@ -136,7 +142,7 @@ bool GETreq(String target, String* dest) {
   // then call the function like GETreq("HOME",&result);
   // the value will then be stored in result. Type: String pointer.
   int httpResponseCode = 0;
-  if(WiFi.status() != WL_CONNECTED){
+  if( !isWifiConnected() ) {
     Serial.println("WiFi is not connected.");
   }
   else {
@@ -188,6 +194,7 @@ bool GETreq(String target, String* dest) {
 #define HOME "HOME" 
 #define FRIDGE "FRIDGE"
 #define LIGHT "LIGHT"
+#define WAIT_TIME "WAIT_TIME"
 #define FORGOT_LIGHT "FOROT_LIGHT"
 #define FAUCET "FAUCET"
 #define SHOWER "SHOWER"
@@ -227,6 +234,19 @@ void POSTlight(bool isLightOn) {
   if (!requestSuccess) { // if request failed:
     badRequest(target);
   }
+}
+
+bool GETwaitTime() {
+  // SIGNATURE:
+  // Returns an integer corresponding to number of minutes to wait before turning off light. Meaningless if request was unsuccesful. 
+  String target = WAIT_TIME;
+  String destination = "";
+  bool requestSuccess = GETreq(target, &destination);
+  if (!requestSuccess) {
+    badRequest(target);
+  }
+  int result = atoi(destination.c_str()); // convert the string to integer
+  return result;
 }
 
 void POSTforgotlight() {

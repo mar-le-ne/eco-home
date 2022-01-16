@@ -9,11 +9,17 @@
             <h2> Are you currently present in your house? </h2>
             <button type="button" id="buttonLeftHouse"> <b> I've left the house. </b> </button>
             <h2> Lighting: </h2>
+            <p>
+                  <label for="quantity">Waiting time for automatically shutting off light (between 1minute and 15minutes):</label><br>
+                  <input type="range" id="waitTimeRange" name="quantity" min="1" max="15" value ="1">
+                  <div id="waitTimeText">
+                        Waiting time is 1 minute.
+                  </div>
+            </p>
             <div id="lightOn">
                   <p>Your light is not on. </p>
             </div>
             <div id="forgotLight">
-                  
             </div>
             <div id="lightTime">
                   <p> EcoHome has saved you 0 minutes of lighting. </p>

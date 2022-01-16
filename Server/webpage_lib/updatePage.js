@@ -7,14 +7,15 @@ window.onload = function () {
     const buttonDivName = "#buttonLeftHouse";
     const fridgeDivName = "#fridgeOpen";
     const lightOnDivName = "#lightOn";
+    const waitTimeDivName = "#waitTimeText"
     const forgotLightDivName = "#forgotLight";
     const lightTimeDivName = "#lightTime"
     const faucetDivName = "#faucetOn"
     const showerDivName = "#showerRunning";
     const showerTimeDivName = "#showerTime"
-    const dataTags = ["HOME", "FRIDGE", "LIGHT", "FORGOT_LIGHT", "LIGHT_TIME",  "LIGHT_AUTO", "FAUCET", "SHOWER", "SHOWER_TIME"]; // names used in the server's stored JSON.
+    const dataTags = ["HOME", "FRIDGE", "LIGHT", "WAIT_TIME", "FORGOT_LIGHT", "LIGHT_TIME",  "LIGHT_AUTO", "FAUCET", "SHOWER", "SHOWER_TIME"]; // names used in the server's stored JSON.
     const tagToDiv = {"HOME" : buttonDivName, "FRIDGE" : fridgeDivName, 
-        "LIGHT" : lightOnDivName, "FORGOT_LIGHT" : forgotLightDivName, "LIGHT_TIME": lightTimeDivName, 
+        "LIGHT" : lightOnDivName, "WAIT_TIME" : waitTimeDivName, "FORGOT_LIGHT" : forgotLightDivName, "LIGHT_TIME": lightTimeDivName, 
         "FAUCET" : faucetDivName, "SHOWER" :  showerDivName, "SHOWER_TIME" : showerTimeDivName} // preface with '#' to indiciate a div to jQuery.
 
     // support functions:
@@ -56,6 +57,7 @@ window.onload = function () {
     }
     
     let atHome = true; // bool relating to whether user is home or not. updated on fetch.
+    let waitTime = 1; // integer for how long the arduino should wait before turning off the light.
     function setPageData(data) { // data is a JSON object 
         console.log("setting data.");
         for (const [key, value] of Object.entries(data)) { // iterate through the data-object's key/value pairs.
@@ -90,6 +92,10 @@ window.onload = function () {
                 case "LIGHT":
                     let isLightOn = stringToBoolean(value);
                     updateLightOnText(isLightOn);   
+                    break;
+                case "WAIT_TIME":
+                    waitTime = parseInt(value);
+                    updateWaitTimeText(waitTime);   
                     break;
                 case "FORGOT_LIGHT":
                     let hasForgottenLight = stringToBoolean(value);
@@ -131,14 +137,25 @@ window.onload = function () {
         }
     } 
 
-    function postHomeStatus(isHome) { // isLeaving should be a 1 if user is leaving the house (isHome), 0 if user is returning. 
+    function postHomeStatus(isHome) { 
         const path = "HOME"
         const apiExtension = "/API/" + path;
         let urlAPI = url + apiExtension;
-        let isLeaving = !isHome;
+        let isLeaving = !isHome; // isLeaving should be a 1 if user is leaving the house (isHome), 0 if user is returning. 
         let ajaxReq = $.post(urlAPI, path + "=" + isLeaving); // send a post request with the logic
         return ajaxReq;
     }
+
+    function postWaitTime(waitTimeArg) { // send the waiting time argument, an integer representing how long the arduino should wait, to the server.
+        const path = "WAIT_TIME"
+        const apiExtension = "/API/" + path;
+        let urlAPI = url + apiExtension;
+        waitTimeArg = Math.ceil(waitTimeArg) // make sure the value is an integer (not a decimal value or bool).
+        waitTimeArg = String(waitTimeArg) // Then turn it into a string.
+        let ajaxReq = $.post(urlAPI, path + "=" + waitTime); // send a post request with the logic
+        return ajaxReq;
+    }
+    
 
     function updateButtonText() {
         let divName = buttonDivName;
@@ -155,6 +172,12 @@ window.onload = function () {
     function updateLightOnText(isLightOn) {
         let divName = lightOnDivName;
         let divText = isLightOn ? ("Your light is on. Are you sure you <it> really </it> need it?") : ("Your light is off.")
+        updateDiv(divName, divText)
+    }
+
+    function updateWaitTimeText(waitTime) {
+        let divName = waitTimeDivName;
+        let divText = "Waiting time is " + waitTime + " minutes.";
         updateDiv(divName, divText)
     }
 
@@ -206,16 +229,28 @@ window.onload = function () {
             if (! (atHome === stallMsg) ) {
                 updateDiv(divName, "Initiating procedures...")
                 $.when(postHomeStatus(atHome)).done(function() { // send post request and, when its done:
-                    $.when(fetchAndSetData()).done( function() { // fetch data. 
+                    fetchAndSetData(); // fetch data, and update the page. 
+                    
+                    /*$.when(fetchAndSetData()).done( function() { 
                         // and when fetch is done, update the button's text.
-                        updateButtonText();
-                    })            
+                        // updateButtonText();
+                    })*/            
                 })
             }
             else {
                 alert("still posting");
             }
             atHome = stallMsg;
+        });
+
+
+        // event listener for the "waiting time" range:
+        gebi("waitTimeRange").addEventListener("change", function (event) {
+            waitTime = event.currentTarget.value;
+            updateWaitTimeText(waitTime);
+            $.when(postWaitTime(waitTime)).done(function() { // send post request and, when its done:
+                fetchAndSetData() // fetch data, and update the page.
+            })            
         });
     }
     

@@ -26,6 +26,7 @@ port = 8081  # use this port. Shouldn't be changed.
 stored_data = {"HOME": "true",  # POST from webpage, GET from arduino
                "FRIDGE": "false",  # POST from arduino
                "LIGHT": "false",  # POST from arduino
+               "WAIT_TIME": "1",  # POST from webpage, GET from arduino.
                "FORGOT_LIGHT": "false",  # POST from arduino
                "LIGHT_TIME": "0",  # GET from webpage
                "FAUCET": "false",  # POST from arduino
@@ -196,13 +197,18 @@ def load_binary(filename):
 if __name__ == '__main__':
     try:
         IP = read_IP_from_file()
+        print(f"IP loaded from file is: {IP}")
         httpd = HTTPServer((IP, port), Serv)
         print("SERVER BEGINS")
+        httpd.serve_forever()
     except Exception as e:
-        print("There's probably an issue with the ip.txt file")
-        print(f"error is: {e}")
-        IP = "Check the ip.txt file"
-    httpd.serve_forever()
+        if e == KeyboardInterrupt:
+            print("Server was turned off")
+        else:
+            print("There's probably an issue with the ip.txt file")
+            print(f"error is: {e}")
+            IP = "Check the ip.txt file"
+
     # Server can be shutdown using Ctrl + C,
     # Alternatively, some IDEs have a red square for stopping functions.
 
