@@ -50,9 +50,26 @@ def secondsToMinutes(sec):
 def is_element_valid(element):
     return element in stored_data.keys()
 
+def str2bool(input_str):  # Convert a string to matching boolean. source: https://stackoverflow.com/a/1414175
+    input_str = input_str.lower().strip()
+    switcher = { # home-brewed Python switch-statement.
+        # Source: https://jaxenter.com/implement-switch-case-statement-python-138315.html
+        # true cases
+        "true": True,
+        "yes": True,
+        "1": True,
+        # false cases
+        "false": False,
+        "no": False,
+        "0": False
+    }
+    def default_case(input_str):
+        print(f"Check what you're sending, because {input_str} doesn't fit our patterns.")
+        return False
+    return switcher.get(input(input_str), default_case(input_str))
+
 
 class Serv(BaseHTTPRequestHandler):
-
     def do_POST(self):
         print(f"POST: path is: {self.path}")
 
@@ -71,30 +88,34 @@ class Serv(BaseHTTPRequestHandler):
             if is_element_valid(element):
                 # Special POST cases:
                 if element == "SHOWER":  # handle when status of SHOWER changes:
-                    if result.lower() == "true" and stored_data[element].lower() == "false":  # if SHOWER turns on
+                    is_being_switched_on = str2bool(result)
+                    was_switched_on = str2bool(stored_data[element])
+                    if is_being_switched_on and not was_switched_on:  # if SHOWER turns on and was previously turned off:
                         eventDates[element] = int(time())
-                    elif result.lower() == "false" and stored_data[element].lower() == "true":  # if SHOWER turns off
+                    elif was_switched_on and not is_being_switched_on:  # if SHOWER turns off and was previously turned on.
                         current_shower_time = float(stored_data["SHOWER_TIME"])
                         stored_data["SHOWER_TIME"] = str(current_shower_time +
                                                          secondsToMinutes(eventDates[element] - time()))
                         eventDates[element] = 0
                 if element == "LIGHT_AUTO":  # Case of arduino automatically turning off the lights.
-                    if result.lower() == "true":  # if LIGHT is automatically turned off on
+                    is_light_auto_switched_off = str2bool(result)
+                    if is_light_auto_switched_off:  # if LIGHT is automatically turned off on
                         eventDates[element] = int(time())
                         stored_data[element] = result  # Store that the light was turned off automatically.
                 if element == "LIGHT":
                     stored_data[element] = result  # Save the current status of light
                     # and if it's turned on after being automatically turned off,
                     # store the amount of time the light was turned off.
-
-                    if result.lower() == "true":  # the user no longer forgot to turn off the light
-                        stored_data["FORGOT_LIGHT"] = "false"
-                        if stored_data["LIGHT_AUTO"].lower() == "true":  # if the light was previously turned off automatically.
+                    is_being_switched_on = str2bool(result)
+                    if is_being_switched_on:  # the user no longer forgot to turn off the light
+                        stored_data["FORGOT_LIGHT"] = str(False)
+                        was_auto_switched_off = str2bool(stored_data["LIGHT_AUTO"])
+                        if was_auto_switched_off:  # if the light was previously turned off automatically.
                             current_light_time = float(stored_data["LIGHT_TIME"])
                             stored_data["LIGHT_TIME"] = str(current_light_time +
                                                              secondsToMinutes(eventDates["LIGHT_AUTO"] - time()))
                             eventDates[element] = 0
-                            stored_data["LIGHT_AUTO"] = "false"  # Store that the light was turned on (manually).
+                            stored_data["LIGHT_AUTO"] = str(False)  # Store that the light was turned on (manually).
                 else:  # General POST case.
                     stored_data[element] = result
                 # Successful POST request.
