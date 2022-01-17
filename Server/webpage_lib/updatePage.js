@@ -17,6 +17,9 @@ window.onload = function () {
     const tagToDiv = {"HOME" : buttonDivName, "FRIDGE" : fridgeDivName, 
         "LIGHT" : lightOnDivName, "WAIT_TIME" : waitTimeDivName, "FORGOT_LIGHT" : forgotLightDivName, "LIGHT_TIME": lightTimeDivName, 
         "FAUCET" : faucetDivName, "SHOWER" :  showerDivName, "SHOWER_TIME" : showerTimeDivName} // preface with '#' to indiciate a div to jQuery.
+    const removedTags = ["LIGHT", "LIGHT_TIME", "LIGHT_AUTO"]
+
+
 
     // support functions:
     function gebi(id) { // alias for "get element by id":
@@ -93,10 +96,6 @@ window.onload = function () {
                     let isLightOn = stringToBoolean(value);
                     updateLightOnText(isLightOn);   
                     break;
-                case "WAIT_TIME":
-                    waitTime = parseInt(value);
-                    updateWaitTimeText(waitTime);   
-                    break;
                 case "LIGHT_TIME":
                     let lightTime = value;
                     updateLightTimeText(lightTime);
@@ -104,11 +103,14 @@ window.onload = function () {
                 case "LIGHT_AUTO":
                     // the webpage doesn't really care about this value.
                     break; */
+                case "WAIT_TIME":
+                    waitTime = parseInt(value);
+                    updateWaitTimeText(waitTime);   
+                    break;
                 case "FORGOT_LIGHT":
                     let hasForgottenLight = stringToBoolean(value);
                     updateForgotLightText(hasForgottenLight );   
                     break;
-
                 case "FAUCET":
                     let isFaucetRunning = stringToBoolean(value);
                     updateFaucetRunningText(isFaucetRunning);   
@@ -121,8 +123,11 @@ window.onload = function () {
                     let showerTime = value;
                     updateShowerTimeText(showerTime);   
                     break;
-                default: 
-                    if (!(tagToDiv[key] === 'undefined')) { // check that the key is an actual key of tagToDiv.
+                default:
+                    if (removedTags.includes(key)) {
+                        // do nothing, we don't care about these
+                    } 
+                    else if (!(tagToDiv[key] === 'undefined')) { // check that the key is an actual key of tagToDiv, and isn't removed.
                         // not really used anymore.
                         let divName = tagToDiv[key]; // find the name of the div from the key. i.e. #fridge = tagToDiv["FRIDGE"] 
                         // updateDiv(divName, value); // Assign the divs on the html page to the retrieved data
@@ -139,7 +144,7 @@ window.onload = function () {
     } 
 
     function postHomeStatus(isHome) { 
-        const path = "HOME"
+        const path = "HOME";
         const apiExtension = "/API/" + path;
         let urlAPI = url + apiExtension;
         let isLeaving = !isHome; // isLeaving should be a 1 if user is leaving the house (isHome), 0 if user is returning. 

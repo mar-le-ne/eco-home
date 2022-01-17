@@ -184,11 +184,13 @@ def handleInvalidPOST(server_o):
 
 
 class Serv(BaseHTTPRequestHandler):
+    # class variable:
+    API_path = "API"
 
-    API_path = "/API"
     def do_POST(self):
         print(f"POST: path is: {self.path}")
-        if self.path.strip() == Serv.API_path:
+        path_list = self.path.split("/")
+        if path_list[1].strip() == Serv.API_path:
             try:
                 content_length = int(self.headers['Content-Length'])
             except TypeError:
@@ -215,7 +217,7 @@ class Serv(BaseHTTPRequestHandler):
                 handleInvalidPOST(self)
         else:
             print("POST path is invalid")
-            handleInvalidPOST()
+            handleInvalidPOST(self)
     def do_GET(self):
         file_to_open = None
         file_ext = self.path.split(".")  # file extension of the requested file. if no file-extension is found,
@@ -225,13 +227,12 @@ class Serv(BaseHTTPRequestHandler):
             # e.g. file-extension of "jquery.min.js" is "js".
         else:
             file_ext = "html"  # use None instead?
-
+        path_list = self.path.split("/")
         if self.path == '/':
             self.path = "webpage.html"
             self.send_response(200)
-        elif self.path.split('/')[1] == "API":  # "/API"...
+        elif path_list[1] == "API":  # "/API"...
             print("API accessed.")
-            path_list = self.path.split("/")
             if len(path_list) > 1 and path_list[2] != "":
                 element = path_list[-1].upper()  # last part of the path.
                 if element == "ALL":
