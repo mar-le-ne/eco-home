@@ -5,6 +5,7 @@
  * 
  * Connect Rx pin of the Arduino to Tx pin of the ESP
  * Connect Tx pin of the Arduino to Rx pin of the ESP
+ * NOTE: These wires should not be plugged in while uploading the code
  * Connect both boards to GND
  * 
  * created 13/01/2022
