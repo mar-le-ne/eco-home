@@ -36,6 +36,7 @@ void loop() {
   
   String str = temp+String("; ")+potVal; // Concatenate all strings into one
   espSerial.println(str);                // Send the string via serial
+  Serial.println(str);                   // Necessary for the string to be sent
   delay(1000);
 }
 
