@@ -7,13 +7,6 @@
 
 ESP8266WiFiMulti wifiMulti;
 
-
-// WifiName:
-// CHANGE THESE!! To your personal WiFi. Make sure the password is not something used elsewhere, such as for facebook, netflix, other personal accounts etc.!!!
-/*char *ap_name = "farligt wifi";
-char *ap_pass = "august1234";
-*/
-
 String IP = "";// The IP address of the server. Should be changed using the method from documentation.
 String serverName = "";
 const String protocol = "http://";
@@ -196,7 +189,7 @@ bool GETreq(String target, String* dest) {
 #define FRIDGE "FRIDGE"
 #define LIGHT "LIGHT"
 #define WAIT_TIME "WAIT_TIME"
-#define FORGOT_LIGHT "FOROT_LIGHT"
+#define FORGOT_LIGHT "FORGOT_LIGHT"
 #define FAUCET "FAUCET"
 #define SHOWER "SHOWER"
 #define LIGHT_AUTO "LIGHT_AUTO"
@@ -250,9 +243,9 @@ bool GETwaitTime() {
   return result;
 }
 
-void POSTforgotLight() {
+void POSTforgotLight(bool hasForgotLight) {
   String target = FORGOT_LIGHT;
-  String value = boolToString(true); 
+  String value = boolToString(hasForgotLight); 
   bool requestSuccess = POSTreq(target, value);
   if (!requestSuccess) { // if request failed:
     badRequest(target);
