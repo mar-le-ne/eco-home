@@ -89,7 +89,7 @@ window.onload = function () {
                     let isFridgeOpen = stringToBoolean(value);
                     updateFridgeText(isFridgeOpen);
                     break;
-                case "LIGHT":
+                /*case "LIGHT": // Old cases for extra features related to the Lighting:
                     let isLightOn = stringToBoolean(value);
                     updateLightOnText(isLightOn);   
                     break;
@@ -97,17 +97,18 @@ window.onload = function () {
                     waitTime = parseInt(value);
                     updateWaitTimeText(waitTime);   
                     break;
-                case "FORGOT_LIGHT":
-                    let hasForgottenLight = stringToBoolean(value);
-                    updateForgotLightText(hasForgottenLight );   
-                    break;
                 case "LIGHT_TIME":
                     let lightTime = value;
                     updateLightTimeText(lightTime);
                     break;
                 case "LIGHT_AUTO":
                     // the webpage doesn't really care about this value.
+                    break; */
+                case "FORGOT_LIGHT":
+                    let hasForgottenLight = stringToBoolean(value);
+                    updateForgotLightText(hasForgottenLight );   
                     break;
+
                 case "FAUCET":
                     let isFaucetRunning = stringToBoolean(value);
                     updateFaucetRunningText(isFaucetRunning);   
