@@ -184,6 +184,7 @@ bool GETreq(String target, String* dest) {
  * "HOME" : POST from webpage, GET from arduino
  * "FRIDGE": POST from arduino
  * "LIGHT": POST from arduino
+ * "FORGOT_IIGHT": POST from arduino
  * "LIGHT_TIME": GET from webpage
  * "FAUCET": POST from arduino
  * "SHOWER": POST from arduino
@@ -249,7 +250,7 @@ bool GETwaitTime() {
   return result;
 }
 
-void POSTforgotlight() {
+void POSTforgotLight() {
   String target = FORGOT_LIGHT;
   String value = boolToString(true); 
   bool requestSuccess = POSTreq(target, value);

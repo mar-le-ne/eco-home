@@ -226,7 +226,10 @@ window.onload = function () {
             console.log("Home status is: " + atHome)
             let divName = buttonDivName;
             const stallMsg = "loading";
-            if (! (atHome === stallMsg) ) {
+            if (atHome === stallMsg) { // If user clicks on the button before it has finished sending and retrieving data from the server.
+                alert("Still posting data. Check your connection to the server if this continues.");
+            }
+            else {
                 updateDiv(divName, "Initiating procedures...")
                 $.when(postHomeStatus(atHome)).done(function() { // send post request and, when its done:
                     fetchAndSetData(); // fetch data, and update the page. 
@@ -236,9 +239,6 @@ window.onload = function () {
                         // updateButtonText();
                     })*/            
                 })
-            }
-            else {
-                alert("still posting");
             }
             atHome = stallMsg;
         });
