@@ -124,15 +124,16 @@ def handleLightPOST(result):
             eventDates["LIGHT"] = 0
             stored_data["LIGHT_AUTO"] = str(False)  # Store that the light was turned on (manually).
 
+
 def handleWaitTimePost(result):
     #  ensure the wait time posted is between some predefined limits
     clamp_values = [1,15]
     min_wait_time = min(clamp_values)
     max_wait_time = max(clamp_values)
     int_result = int(result)
-    int_result = min(max(result, min_wait_time), max_wait_time)   # clamp the result
+    int_result = min(max(int_result, min_wait_time), max_wait_time)   # clamp the result
     str_result = str(int_result)  # convert back into string.
-    handleDefaultPOST(WAIT_TIME,result)  # use the default method for handling the rest of the request.
+    handleDefaultPOST(WAIT_TIME, str_result)  # use the default method for handling the rest of the request.
 
 
 def handleDefaultPOST(element, result):
@@ -143,6 +144,7 @@ def handleValidPOST(server_o, payload):
     element = payload.element
     result = payload.result
     # Special POST cases:
+    print("SWITCHING")
     switcher = {
         "SHOWER": handleShowerPOST,
         "LIGHT_AUTO": handleLightAutoPOST,
@@ -183,6 +185,15 @@ def handleInvalidPOST(server_o):
     server_o.wfile.write(bytes(content, 'utf-8'))
 
 
+def cleanGETpayload(payload):
+    result = payload.strip()
+    try:
+        result = int(result )
+    except ValueError:
+        result = str2bool(result )
+    return result
+
+
 class Serv(BaseHTTPRequestHandler):
     # class variable:
     API_path = "API"
@@ -198,7 +209,7 @@ class Serv(BaseHTTPRequestHandler):
             file_content = self.rfile.read(content_length)
 
             file_content = file_content.decode("UTF-8")
-            print(f"POST payload contains: {file_content}")
+            # print(f"POST payload contains: {file_content}")
             if "=" in file_content:
                 parsed_data = file_content.split("=")  # parse the message.
                 element = parsed_data[0].upper()
@@ -232,26 +243,37 @@ class Serv(BaseHTTPRequestHandler):
             self.path = "webpage.html"
             self.send_response(200)
         elif path_list[1] == "API":  # "/API"...
-            print("API accessed.")
-            if len(path_list) > 1 and path_list[2] != "":
+            print(f"API accessed. Path list is: {path_list}")
+            if len(path_list) > 1 and path_list[2] != "":  # TODO: PROBLEM!!
                 element = path_list[-1].upper()  # last part of the path.
                 if element == "ALL":
                     self.send_response(200)
                     file_to_open = dumps(stored_data)
                 elif is_element_valid(element):
                     self.send_response(200)
-                    file_to_open = dumps(stored_data[element])
+                    print("test")
+                    # TODO: This is the problem area
+                    # payload = cleanGETpayload(stored_data[element])
+                    json_data = stored_data[element]  # dumps(payload)
+
+                    print(f"GET data is: {json_data}")
+                    file_to_open = json_data
+                    self.send_header("Content-type", "text/plain")
+
                 else:
                     print(f"{element} is invalid and cannot be accessed")
                     self.send_response(404)
-            print(f"loaded data is  {file_to_open}")
+            else:
+                print(f"GET request is invalid")
+                self.send_response(404)
+            print(f"loaded data is {file_to_open}")
         else:  # for GET requests to documents such as updatePage.js or jQuery.js
             self.path = self.path.split("HTTP/1.1")[0]
             self.send_response(200)
         try:
             if not file_to_open:
                 file_to_open = open(document_path + self.path).read()
-            self.send_header("Content-type", "text/html")
+            # self.send_header("Content-type", "text/html")
             self.end_headers()
             self.wfile.write(bytes(file_to_open, 'utf-8'))
         except Exception as e:

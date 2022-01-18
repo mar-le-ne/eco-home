@@ -60,28 +60,54 @@ bool isWifiConnected() {
 }
  
 
+String cleanString(String input) {
+  input.toLowerCase();
+  input.trim();
+
+  // the server GET response unfortunately includes \", so we will remove them.
+  int stringLength = input.length();
+  String cleanString = "";
+  char quote = '\"';
+  for (int i = 0; i < stringLength; i++) {
+    char inpChar = input.charAt(i);
+    if (inpChar != quote) {
+      cleanString.concat(inpChar);
+    }
+  }
+  return cleanString;
+}
+
 // function for parsing general String expressions into boolean:
 bool parseBool(String input) {
   // source: https://stackoverflow.com/a/1414175
   // the switch-statement in arduino only works on int and char. So use multiple if-statements instead.
-  input.toLowerCase();
-  input.trim();
+
+  String cleanedInput = cleanString(input);
   const String trueStrings[3] = {"true","yes","1"};
   const String falseStrings[3] = {"false","no","0"};
   
-  if (isStringInStringArray(input, trueStrings, 3)) {
+  if (isStringInStringArray(cleanedInput, trueStrings, 3)) {
     return true;
   }
-  else if (isStringInStringArray(input, falseStrings, 3)) {
+  else if (isStringInStringArray(cleanedInput, falseStrings, 3)) {
     return false;
   }
   else {
-    return bool(input.toInt());
+    return bool(cleanedInput.toInt());
   }
 }
 
 String boolToString(bool input) {
   return input ? "true" : "false";
+}
+
+int parseIntCpp(String input) { // Parse and convert a C++ string to int
+  return atoi(input.c_str()); 
+}
+
+
+bool isSuccesfulHTTP(int httpStatusCode) {
+  return (httpStatusCode > 199) && (httpStatusCode < 300);  // http status codes of 2xx means the request was successful.
 }
 
 // Source for POSTreq and GETreq: https://randomnerdtutorials.com/esp8266-nodemcu-http-get-post-arduino/
@@ -123,8 +149,9 @@ bool POSTreq(String target, String value) {
     http.end();
     Serial.println(" --- ending POST request --- ");
   }
-  return (httpResponseCode >= 200 && httpResponseCode < 300); // http Response codes of 2xx means the request was successful.
+  return isSuccesfulHTTP(httpResponseCode);
 }
+
 
 bool GETreq(String target, String* dest) {
   // SIGNATURE: 
@@ -145,18 +172,19 @@ bool GETreq(String target, String* dest) {
     
     target.toUpperCase(); // ensure uppercase.
     String serverPath = serverName + api_extension + "/" + target;
-    
+    Serial.println(serverPath);
     // Your Domain name with URL path or IP address with path
     http.begin(client, serverPath.c_str());
     
     // Send HTTP GET request
-    int httpResponseCode = http.GET();
+    httpResponseCode = http.GET();
     
     if (httpResponseCode>0) {
       Serial.print("HTTP Response code: ");
       Serial.println(httpResponseCode);
       String payload = http.getString();
-      Serial.println(payload);
+      // Serial.println(payload);
+      *dest = payload; // assign the value stored at the destination pointer, equal to the payload value
     }
     else {
       Serial.print("Error code: ");
@@ -166,7 +194,7 @@ bool GETreq(String target, String* dest) {
     http.end();
     Serial.println(" --- ending GET request --- ");
   }
-  return (httpResponseCode >= 200 && httpResponseCode < 300); // http Response codes of 2xx means the request was successful.
+  return isSuccesfulHTTP(httpResponseCode);
 }
 
 
@@ -205,6 +233,7 @@ bool GEThome() {
   String target = HOME;
   String destination = "";
   bool requestSuccess = GETreq(target, &destination);
+  Serial.print("GEThome successful?: "); Serial.println(requestSuccess);
   if (!requestSuccess) {
     badRequest(target);
   }
@@ -221,16 +250,8 @@ void POSTfridge(bool isFridgeOpen) {
   }
 }
 
-void POSTlight(bool isLightOn) {
-  String target = LIGHT;
-  String value = boolToString(isLightOn);
-  bool requestSuccess = POSTreq(target, value);
-  if (!requestSuccess) { // if request failed:
-    badRequest(target);
-  }
-}
 
-bool GETwaitTime() {
+int GETwaitTime() {
   // SIGNATURE:
   // Returns an integer corresponding to number of minutes to wait before turning off light. Meaningless if request was unsuccesful. 
   String target = WAIT_TIME;
@@ -239,22 +260,13 @@ bool GETwaitTime() {
   if (!requestSuccess) {
     badRequest(target);
   }
-  int result = atoi(destination.c_str()); // convert the string to integer
+  int result = parseIntCpp(destination); // convert the string to integer
   return result;
 }
 
 void POSTforgotLight(bool hasForgotLight) {
   String target = FORGOT_LIGHT;
   String value = boolToString(hasForgotLight); 
-  bool requestSuccess = POSTreq(target, value);
-  if (!requestSuccess) { // if request failed:
-    badRequest(target);
-  }
-}
-
-void POSTautolight() {
-  String target = LIGHT_AUTO;
-  String value = boolToString(true);
   bool requestSuccess = POSTreq(target, value);
   if (!requestSuccess) { // if request failed:
     badRequest(target);
@@ -278,4 +290,35 @@ void POSTshower(bool isShowerRunning) {
   if (!requestSuccess) { // if request failed:
     badRequest(target);
   }
-}             
+}
+
+void deprecatedFunctionWarning(){
+  Serial.println("WARNING: Function is deprecated!!!"); 
+}
+
+
+
+// !!!!!!!!!!!!!!!!!!!!!!
+// Deprecated functions!!
+// !!!!!!!!!!!!!!!!!!!!!!
+void POSTautolight() {
+  /*String target = LIGHT_AUTO;
+  String value = boolToString(true);
+  bool requestSuccess = POSTreq(target, value);
+  if (!requestSuccess) { // if request failed:
+    badRequest(target);
+  }*/
+  deprecatedFunctionWarning();
+}
+
+void POSTlight(bool isLightOn) {
+  /*
+  String target = LIGHT;
+  String value = boolToString(isLightOn);
+  bool requestSuccess = POSTreq(target, value);
+  if (!requestSuccess) { // if request failed:
+    badRequest(target);
+  }
+  */
+  deprecatedFunctionWarning();
+}
