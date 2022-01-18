@@ -53,7 +53,5 @@ void loop() {
   
   // Testing the GET functions.
   testGEThome();
-  testGETwaitTime();
-
-  
+  testGETwaitTime(); 
 }

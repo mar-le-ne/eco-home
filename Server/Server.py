@@ -60,6 +60,7 @@ def secondsToMinutes(sec):
 
 
 def is_element_valid(element):
+    print("POST is valid")
     return element in stored_data.keys()
 
 
@@ -144,7 +145,6 @@ def handleValidPOST(server_o, payload):
     element = payload.element
     result = payload.result
     # Special POST cases:
-    print("SWITCHING")
     switcher = {
         "SHOWER": handleShowerPOST,
         "LIGHT_AUTO": handleLightAutoPOST,
@@ -209,13 +209,13 @@ class Serv(BaseHTTPRequestHandler):
             file_content = self.rfile.read(content_length)
 
             file_content = file_content.decode("UTF-8")
-            # print(f"POST payload contains: {file_content}")
+            print(f"POST payload contains: {file_content}")
             if "=" in file_content:
                 parsed_data = file_content.split("=")  # parse the message.
                 element = parsed_data[0].upper()
                 result = parsed_data[1]
                 if is_element_valid(element):
-                    # print("POST is valid")
+
                     payload = Payload(element, result)
                     handleValidPOST(self, payload)
                 else:  #
