@@ -81,7 +81,7 @@ def str2bool(input_str):  # Convert a string to matching boolean. source: https:
         print(f"Check what you're sending, because {inp_str} doesn't fit our patterns.")
         return False
 
-    return switcher.get(input(input_str), default_case(input_str))
+    return switcher.get(input_str, default_case(input_str))
 
 
 class Payload:
