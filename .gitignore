@@ -1,0 +1,3 @@
+
+# ignore commits to the ip.txt file, each user should input this using their own local IP.
+/Server/webpage_lib/ip.txt

@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+
+<html>
+      <head>
+      </head>
+      <title> ECOHOME PERSONAL </title>      
+      <body>
+            <h1> WELCOME TO YOUR PERSONAL ECOHOME USER PAGE</h1>
+            <h2> Are you currently present in your house? </h2>
+            <button type="button" id="buttonLeftHouse"> <b> I've left the house. </b> </button>
+            <h2> Lighting: </h2>
+            <p>
+                  <label for="quantity">Waiting time for automatically shutting off light (between 1minute and 15minutes):</label><br>
+                  <input type="range" id="waitTimeRange" name="quantity" min="1" max="15" value ="1">
+                  <div id="waitTimeText">
+                        Waiting time is 1 minute.
+                  </div>
+            </p>
+            <div id="lightOn">
+                  <p>Your light is not on. </p>
+            </div>
+            <div id="forgotLight">
+            </div>
+            <div id="lightTime">
+                  <p> EcoHome has saved you 0 minutes of lighting. </p>
+            </div>
+            
+            <h2> Fridge: </h2>
+            <div id="fridgeOpen">
+                  <p> Your fridge is closed. </p>
+            </div>
+            <h2> Water: </h2>
+            <div id="faucetOn">
+                  <p>The faucet is not running</p>
+            </div>
+            <div id="showerRunning">
+                  <p> The shower is not running. </p>
+            </div>
+            <div id="showerTime">
+                  <p> You've showered 0 minutes. </p>
+            </div>
+       <!-- scripts: -->
+       <script src="jquery-3.6.0.min.js"> </script>
+       <script src="updatePage.js"> </script>
+      </body>  
+     
+
+
+</html>
+
+<!-- Old scraps of HTML code: 
+<meta charset=\"utf-8\" \/>
+<p>Here is a selection table : </p>
+<select id="MENU by me" name="menuu"> 
+      <option>option 1 : :D </option>
+<option>option 2 : :L </option>
+</select>
+
+<p> <table> 
+                  <tr> 
+                        <th> Button status </th>  
+                  </tr>
+                  <tr>
+                        <td> <div id="has_left"> 0 </div> </td>
+                  </tr>
+            </table>
+</p>
+-->
+
