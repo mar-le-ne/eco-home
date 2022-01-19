@@ -201,7 +201,7 @@ window.onload = function () {
 
     function updateFaucetRunningText(isFaucetRunning) {
         let divName = faucetDivName;
-        let divText = isFaucetRunning ? ("What are you doing on your phone? Aren''t you using the sink right now?") : ("The faucet is not running &#129312")
+        let divText = isFaucetRunning ? ("What are you doing on your phone? Aren't you using the sink right now?") : ("The faucet is not running &#129312")
         updateDiv(divName, divText)
     }
 
