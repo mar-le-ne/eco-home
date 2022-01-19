@@ -3,37 +3,98 @@
 <html>
       <head>
       </head>
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+
+      <style>
+            body {
+                  font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+                  color: rgb(34, 36, 35);
+            }
+            h1 {
+                  text-align: center;
+                  
+                  background-color: rgb(130, 204, 173);
+                  border-radius: 8px;
+                  padding: 30px;
+
+            }
+            .in_out {
+                  background-color: rgb(201, 201, 201);
+                  border-radius: 8px;
+                  padding: 10px;
+            }
+            .other_features {
+                  background-color: rgb(236, 236, 236);
+                  border-radius: 8px;
+                  padding: 10px;
+            }
+            .button {
+                  background-color: #ffffff;
+                  border: none;
+                  border-radius: 8px;
+                  color: rgb(34, 34, 34);
+                  padding: 15px 32px;
+                  text-align: center;
+                  display: inline-block;
+                  font-size: 16px;
+                  margin: 4px 2px;
+                  cursor: pointer;
+            }
+            .slider {
+                  width: 50%;
+            }
+            
+
+      </style>
+
       <title> ECOHOME PERSONAL </title>      
       <body>
-            <h1> WELCOME TO YOUR PERSONAL ECOHOME USER PAGE</h1>
-            <h2> Are you currently present in your house? </h2>
-            <button type="button" id="buttonLeftHouse"> <b> I've left the house. </b> </button>
-            <h2> Lighting: </h2>
-            <p>
-                  
-            <label for="quantity">Waiting time for automatically shutting off light (between 1minute and 15minutes): 
-                  <div id = "waitTimeText"> Waiting time is 1 minute. </div></label>
-                  <input type="range" id="waitTimeRange" name="quantity" min="1" max="15" value ="1"><br>
-            </p>
-            <div id="forgotLight">
-                  <p> ...  </p>
+            <h1> YOUR ECOHOME </h1>
+
+            <div class="in_out"> 
+                  <h2> Are you currently at home? </h2>
+                  <button type="button" class= "button" id="buttonLeftHouse"> <b> I've left the house </b> </button>
+            </div>
+            <br>
+
+            <div class="other_features"> 
+                  <h2> Lighting </h2>
+                  <p>
+                        <label for="quantity">Waiting time for automatically shutting off light (between 1minute and 15minutes): 
+                              <div id = "waitTimeText"> Waiting time is 1 minute. </div></label>
+                        <br>
+                        <input type="range" id="waitTimeRange" name="quantity" min="1" max="15" value ="1"><br>
+
+
+                  <div id="forgotLight">
+                  </div>
+
+            </div>
+            <br>
+            
+            <div class="other_features"> 
+                  <h2> Fridge </h2>
+                  <div id="fridgeOpen">
+                        <p> Your fridge is closed. </p>
+                  </div>
+            </div>
+            <br>
+
+            <div class="other_features"> 
+                  <h2> Water </h2>
+                  <div id="faucetOn">
+                        <p>The faucet is not running</p>
+                  </div>
+                  <div id="showerRunning">
+                        <p> The shower is not running. </p>
+                  </div>
+                  <div id="showerTime">
+                        <p> You've showered 0 minutes. </p>
+                  </div>
+            
             </div>
 
-            
-            <h2> Fridge: </h2>
-            <div id="fridgeOpen">
-                  <p> Your fridge is closed. </p>
-            </div>
-            <h2> Water: </h2>
-            <div id="faucetOn">
-                  <p>The faucet is not running</p>
-            </div>
-            <div id="showerRunning">
-                  <p> The shower is not running. </p>
-            </div>
-            <div id="showerTime">
-                  <p> You've showered 0 minutes. </p>
-            </div>
+
        <!-- scripts: -->
        <script src="jquery-3.6.0.min.js"> </script>
        <script src="updatePage.js"> </script>
