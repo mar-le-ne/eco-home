@@ -1,43 +1,69 @@
-#include <ESP8266WiFi.h>
-#include <ThingSpeak.h>
+/* WaterSensor.ino
+ * 
+ * Program used to read the water sensor
+ * 
+ * Connect S pin of the sensor to an analog pin
+ * Connect + pin of the sensor to a digital pin
+ * Connect both boards to GND
+ * 
+ * created 12/01/2022
+ * by Victor Leweke
+ * last modified 18/01/2022
+ */
 
-const char* ssid = "Victor's iPhone X";
-const char* pass = "a1b2c3d4";
-WiFiClient client;
+#include "client_lib.h"
 
-unsigned long channelID = 1629242; //your TS channal
-const char * APIKey = "3MUXL34UG6G33BCM"; //your TS API
-const char* server = "api.thingspeak.com";
-const int postDelay = 16 * 1000; //post data every 16 seconds
-
-const byte waterSensor = A0;
+const byte powerPin = D1;     // Define a power pin so that the sensor is not always powered up
+const byte waterSensor = A0;  // Define the analog pin
 int waterLevel;
+bool infoSent = true;         // Boolean for the information sent
+
+// waitingTime inspired by Sophie Woods
+const int waitingTime = 300; // The time that it's waiting is: 50*waitingTime/1000=seconds.
+// So waitingTime = 1500 will be 1,25 min. 500 = 25 seconds
+int timeCount = 0;           // Time counter
 
 void setup() {
   Serial.begin(115200);
-  WiFi.begin(ssid, pass);
-  pinMode(waterSensor,INPUT);
-
+  String wName = "Basecamp Resident 2G";
+  String wPass = "8IndeedBerlinRock666";
+  String IP = "172.16.129.160";
+  setupWIFI(wName, wPass, IP);
+  
+  pinMode(powerPin, OUTPUT);
+  pinMode(waterSensor, INPUT);
 }
 
 void loop() {
   int waterLevel = getLevel();    // Get the percentage of submerged sensor
-
-  ThingSpeak.begin(client);
-  client.connect(server, 80);               //connect(URL, Port)
-  ThingSpeak.setField(1, waterLevel);       //set data on graph 1
-  ThingSpeak.writeFields(channelID, APIKey);//post everything to TS
-  client.stop();
-
   Serial.print("Water level: ");
-  Serial.print(waterLevel);       // Print on serial monitor
-  Serial.println('%');
+  Serial.println(waterLevel);     // Print on serial monitor  
+  delay(1000);
   
-  delay(1000); //wait and then post again
+  while (waterLevel > 120) {      // If the water level is high for too long, the user will be notified
+    delay(50);
+    timeCount++;
+    waterLevel = getLevel();      // Update the water level
+    if (timeCount >= waitingTime) {
+      infoSent = true;
+      Serial.println("1");
+      POSTfaucet(true);           // Posting on the server
+      timeCount = 0;
+    } 
+  }
+  timeCount = 0;
+  if (infoSent == true) {         // Checks whether a different information was sent
+    infoSent = false;             // so that it does not sent repetitive requests
+    Serial.println("0");
+    POSTfaucet(false);            // Posting on the server
+  }
 }
 
-int getLevel() { // Function to get the level of water
-  float val = analogRead(waterSensor);                // Read sensor
-  float level = pow(10, (val-67.807191)/166.096405);  // Convert value to a percentage
+int getLevel() {  // Function to get the level of water
+  digitalWrite(powerPin, HIGH);
+  delay(10);
+  float level = analogRead(waterSensor);   // Read sensor
+  delay(10);
+  digitalWrite(powerPin, LOW);
   return level;
 }
