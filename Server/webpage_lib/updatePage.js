@@ -162,10 +162,11 @@ window.onload = function () {
         return ajaxReq;
     }
     
-
+    // Specific functions for handling each div.
+    // Could probably be a lot cleaner, since they all function the same way with a few exceptions (lightTime, showerTime).
     function updateButtonText() {
         let divName = buttonDivName;
-        let buttonText = atHome ? ("I've left the house.") : ("I've returned");
+        let buttonText = atHome ? ("<b> I've left the house</b>.") : ("<b> I've returned</b>.");
         updateDiv(divName, buttonText);
     }
 
@@ -238,12 +239,7 @@ window.onload = function () {
             else {
                 updateDiv(divName, "Initiating procedures...")
                 $.when(postHomeStatus(atHome)).done(function() { // send post request and, when its done:
-                    fetchAndSetData(); // fetch data, and update the page. 
-                    
-                    /*$.when(fetchAndSetData()).done( function() { 
-                        // and when fetch is done, update the button's text.
-                        // updateButtonText();
-                    })*/            
+                    fetchAndSetData(); // fetch data, and update the page.          
                 })
             }
             atHome = stallMsg;
