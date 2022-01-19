@@ -13,25 +13,25 @@ void setup() {
 
 
 int mainDelay = 5 * 1000;
-int minorDelay = 15 * 1000;
+int POSTdelay = 15 * 1000;
 void testPOSTfunction( void (*POSTfunc)(bool) ) {
   (*POSTfunc)(true);
-  delay(minorDelay);
+  delay(POSTdelay * 3);
   (*POSTfunc)(false);  
-  delay(minorDelay);
+  delay(POSTdelay);
 }
 
 void testGEThome() {
   bool homeValue = GEThome();
   String homeText = homeValue ? "User is home" : "User is not home";
   Serial.println(homeText);
-  delay(minorDelay);
+  delay(POSTdelay);
 }
 
 void testGETwaitTime() {
   int waitTime = GETwaitTime();
   Serial.print("Waiting time is: "); Serial.println(waitTime);
-  delay(minorDelay);
+  delay(POSTdelay);
 }
 
 void testCleanString(String input) {
@@ -52,6 +52,8 @@ void loop() {
   testPOSTfunction(POSTshower);
   
   // Testing the GET functions.
+  
   testGEThome();
   testGETwaitTime(); 
+  
 }
