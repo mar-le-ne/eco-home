@@ -19,7 +19,6 @@ ip = ""
 # AFTER IP
 port = 8081  # use this port. Should not be changed.
 
-
 # Strings for the data tags. Use these variables as aliases to avoid typos in strings:
 HOME = "HOME"
 FRIDGE = "FRIDGE"
@@ -31,7 +30,6 @@ FAUCET = "FAUCET"
 SHOWER = "SHOWER"
 SHOWER_TIME = "SHOWER_TIME"
 LIGHT_AUTO = "LIGHT_AUTO"
-
 
 # Data sent and accessed with the API:
 stored_data = {HOME: "true",  # POST from webpage, GET from arduino
@@ -55,7 +53,7 @@ document_path = "webpage_lib/"
 
 
 def secondsToMinutes(sec):
-    minute = 60
+    minute = 60.0
     return round(sec / minute, 2)
 
 
@@ -82,7 +80,11 @@ def str2bool(input_str):  # Convert a string to matching boolean. source: https:
         print(f"Check what you're sending, because {inp_str} doesn't fit our patterns.")
         return False
 
-    return switcher.get(input_str, default_case(input_str))
+    switch_result = switcher.get(input_str, default_case)
+    if (switch_result == default_case):
+        default_case(input_str)
+    else:
+        return switch_result
 
 
 class Payload:
@@ -93,14 +95,14 @@ class Payload:
 
 def handleShowerPOST(result):
     is_being_switched_on = str2bool(result)
-    was_switched_on = str2bool(stored_data["SHOWER"])
+    was_switched_on = str2bool(stored_data[SHOWER])
+    stored_data[SHOWER] = result
     if is_being_switched_on and not was_switched_on:  # if SHOWER turns on and was previously turned off:
-        eventDates["SHOWER"] = int(time())
+        eventDates["SHOWER"] = time()
     elif was_switched_on and not is_being_switched_on:  # if SHOWER turns off and was previously turned on.
-        current_shower_time = float(stored_data["SHOWER_TIME"])
-        stored_data["SHOWER_TIME"] = str(current_shower_time +
-                                         secondsToMinutes(eventDates["SHOWER"] - time()))
-        eventDates["SHOWER"] = 0
+        # current_shower_time = float(stored_data[SHOWER_TIME])  # don't add the previous saved time.
+        stored_data[SHOWER_TIME] = str(secondsToMinutes(time() - eventDates[SHOWER]))  # + current_shower_time # same as above.
+        eventDates[SHOWER] = 0
 
 
 def handleLightAutoPOST(result):
@@ -128,11 +130,11 @@ def handleLightPOST(result):
 
 def handleWaitTimePost(result):
     #  ensure the wait time posted is between some predefined limits
-    clamp_values = [1,15]
+    clamp_values = [1, 15]
     min_wait_time = min(clamp_values)
     max_wait_time = max(clamp_values)
     int_result = int(result)
-    int_result = min(max(int_result, min_wait_time), max_wait_time)   # clamp the result
+    int_result = min(max(int_result, min_wait_time), max_wait_time)  # clamp the result
     str_result = str(int_result)  # convert back into string.
     handleDefaultPOST(WAIT_TIME, str_result)  # use the default method for handling the rest of the request.
 
@@ -155,14 +157,6 @@ def handleValidPOST(server_o, payload):
         handleDefaultPOST(element, result)
     else:  # The special cases only needs 1 parameter
         handle_function(result)
-    """if element == "SHOWER":  # handle when status of SHOWER changes:
-        handleShowerPOST(result)
-    if element == "LIGHT_AUTO":  # Case of arduino automatically turning off the lights.
-        handleLightAutoPOST(result)
-    if element == "LIGHT":
-        handleLightPOST(result)
-    else:  # General POST case.
-        handleDefaultPOST(element, result)"""
 
     # Successful POST request.
     # Response:
@@ -188,9 +182,9 @@ def handleInvalidPOST(server_o):
 def cleanGETpayload(payload):
     result = payload.strip()
     try:
-        result = int(result )
+        result = int(result)
     except ValueError:
-        result = str2bool(result )
+        result = str2bool(result)
     return result
 
 
@@ -229,6 +223,7 @@ class Serv(BaseHTTPRequestHandler):
         else:
             print("POST path is invalid")
             handleInvalidPOST(self)
+
     def do_GET(self):
         file_to_open = None
         file_ext = self.path.split(".")  # file extension of the requested file. if no file-extension is found,

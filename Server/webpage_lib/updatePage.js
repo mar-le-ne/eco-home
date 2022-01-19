@@ -162,10 +162,11 @@ window.onload = function () {
         return ajaxReq;
     }
     
-
+    // Specific functions for handling each div.
+    // Could probably be a lot cleaner, since they all function the same way with a few exceptions (lightTime, showerTime).
     function updateButtonText() {
         let divName = buttonDivName;
-        let buttonText = atHome ? ("I've left the house.") : ("I've returned");
+        let buttonText = atHome ? ("<b> I've left the house</b>.") : ("<b> I've returned</b>.");
         updateDiv(divName, buttonText);
     }
 
@@ -201,19 +202,19 @@ window.onload = function () {
 
     function updateFaucetRunningText(isFaucetRunning) {
         let divName = faucetDivName;
-        let divText = isFaucetRunning ? ("What are you doing on your phone, you're using the sink right now. <b> Right? </b>") : ("Your faucet is turned off :D")
+        let divText = isFaucetRunning ? ("What are you doing on your phone? Aren't you using the sink right now?") : ("The faucet is not running &#129312")
         updateDiv(divName, divText)
     }
 
     function updateShowerRunningText(isShowerRunning) { 
         let divName = showerDivName;
-        let divText = isShowerRunning ? ("Looking at the phone.. in the shower? I swear to God.<br>Oh, never mind. The showerhead's just dripping I guess") : ("Your shower is turned off")
+        let divText = isShowerRunning ? ("Looking at the phone.. in the shower? I swear to God.<br>Oh, never mind. The showerhead's just dripping I guess") : ("The shower is not running. ")
         updateDiv(divName, divText)   
     }
 
     function updateShowerTimeText(showerTime) {
         let divName = showerTimeDivName;
-        let divText = "You've showered " + showerTime + " minutes. Try to be quicker, please."; 
+        let divText = "You've showered " + showerTime + " minutes. Do your best to be as quick as possible! &#9201"; 
         updateDiv(divName, divText)
     }
 
@@ -238,12 +239,7 @@ window.onload = function () {
             else {
                 updateDiv(divName, "Initiating procedures...")
                 $.when(postHomeStatus(atHome)).done(function() { // send post request and, when its done:
-                    fetchAndSetData(); // fetch data, and update the page. 
-                    
-                    /*$.when(fetchAndSetData()).done( function() { 
-                        // and when fetch is done, update the button's text.
-                        // updateButtonText();
-                    })*/            
+                    fetchAndSetData(); // fetch data, and update the page.          
                 })
             }
             atHome = stallMsg;
