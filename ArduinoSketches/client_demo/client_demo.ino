@@ -13,7 +13,7 @@ void setup() {
 
 
 int mainDelay = 5 * 1000;
-int POSTdelay = 15 * 1000;
+int POSTdelay = 35 * 1000;
 void testPOSTfunction( void (*POSTfunc)(bool) ) {
   (*POSTfunc)(true);
   delay(POSTdelay * 3);

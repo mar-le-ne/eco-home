@@ -213,7 +213,7 @@ window.onload = function () {
 
     function updateShowerTimeText(showerTime) {
         let divName = showerTimeDivName;
-        let divText = "You've showered " + showerTime + " minutes. Try to be quicker, please."; 
+        let divText = "You've showered " + showerTime + " minutes. Do your best to be as quick as possible! &#9201"; 
         updateDiv(divName, divText)
     }
 

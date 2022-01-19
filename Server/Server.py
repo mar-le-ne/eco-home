@@ -98,13 +98,10 @@ def handleShowerPOST(result):
     was_switched_on = str2bool(stored_data[SHOWER])
     stored_data[SHOWER] = result
     if is_being_switched_on and not was_switched_on:  # if SHOWER turns on and was previously turned off:
-        print("test1")
         eventDates["SHOWER"] = time()
     elif was_switched_on and not is_being_switched_on:  # if SHOWER turns off and was previously turned on.
-        print("test2")
-        current_shower_time = float(stored_data[SHOWER_TIME])
-        stored_data[SHOWER_TIME] = str(current_shower_time +
-                                       secondsToMinutes(time() - eventDates[SHOWER]))
+        # current_shower_time = float(stored_data[SHOWER_TIME])  # don't add the previous saved time.
+        stored_data[SHOWER_TIME] = str(secondsToMinutes(time() - eventDates[SHOWER]))  # + current_shower_time # same as above.
         eventDates[SHOWER] = 0
 
 
