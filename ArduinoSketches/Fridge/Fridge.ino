@@ -56,6 +56,10 @@ void fridgeAlarm(bool triggerAlarm) {
   Serial.print("was alarm triggerd? "); Serial.println(triggerAlarm); 
   POSTfridge(triggerAlarm);
   alarmWasTriggered = triggerAlarm;
+
+  // Was previously in the (!isFridgeOpen) if-statement block. Needs to be checked if it still works
+  fridgeOpenDuration = 0; 
+  fridgeOpenStart = mainLoop;
 }
 
 
@@ -77,8 +81,7 @@ void fridgeWrapper(byte magPin) {
     if (alarmWasTriggered) { // this is true only when xDelay time passed before fridge was closed. 
       fridgeAlarm(false);
     }
-    fridgeOpenDuration = 0;
-    fridgeOpenStart = mainLoop;
+    
   }
   else {
     Serial.println("Fridge door is open!");
