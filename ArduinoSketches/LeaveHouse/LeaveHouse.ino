@@ -1,16 +1,19 @@
 /* LeaveHouse.ino
- * 
- * This script manages the actuations in the house upon the 
- * user's exit or entrance in it.
- * 
- * The user updates the webpage "Your EcoHome" according 
- * to their presence at home.
- * A message is then given to the server and then received 
- *(get request) via wifi by the ESP.
- * The ESP also performs the respective actuations:
- * - Close/open blinds;
- * - Turn on/off the heater.
- * 
+   
+   This script manages the actuations in the house upon the 
+   user's exit or entrance in it.
+
+   The user updates the webpage "Your EcoHome" according 
+   to their presence at home.
+   A message is then given to the server and then received 
+   (get request) via wifi by the ESP.
+   The ESP also performs the respective actuations:
+   - Close/open blinds;
+   - Turn on/off the heater.
+
+   created 12/01/2022
+   by Marlene Antunes
+   last modified 19/01/2022
 */
 
 #include "client_lib.h"
