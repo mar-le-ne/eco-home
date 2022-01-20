@@ -26,8 +26,8 @@ int timeCount = 0;           // Time counter
 
 void setup() {
   Serial.begin(115200);
-  String wName = "Basecamp Resident 2G";
-  String wPass = "8IndeedBerlinRock666";
+  String wName = "Wifi";
+  String wPass = "Pass";
   String IP = "172.16.129.160";
   setupWIFI(wName, wPass, IP);
   
