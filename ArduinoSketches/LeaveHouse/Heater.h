@@ -1,7 +1,7 @@
 /* Heater.h
  * 
    This script is called by "LeaveHouse.ino" and serves
-   as an actuator for the heater uppon the
+   as an actuator for the heater upon the
    exit or entrance in the house.
 
    An RGB LED is used to represent a heater.

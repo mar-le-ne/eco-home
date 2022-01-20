@@ -1,7 +1,7 @@
 /* Blinds.h
 
    This script is called by "LeaveHouse.ino" and serves
-   as an actuator for the blinds uppon the
+   as an actuator for the blinds upon the
    exit or entrance in the house.
 
    To open/close the blinds, a step motor is used to pull a

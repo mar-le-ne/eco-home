@@ -1,6 +1,6 @@
 /* LeaveHouse.ino
  * 
- * This script manages the actuations in the house uppon the 
+ * This script manages the actuations in the house upon the 
  * user's exit or entrance in it.
  * 
  * The user updates the webpage "Your EcoHome" according 
