@@ -35,7 +35,7 @@ void setup() {
 }
 
 void loop() {
-  int waterLevel = getLevel();    // Get the percentage of submerged sensor
+  int waterLevel = getLevel();    // Get the value of sensor
   Serial.print("Water level: ");
   Serial.println(waterLevel);     // Print on serial monitor  
   delay(1000);
