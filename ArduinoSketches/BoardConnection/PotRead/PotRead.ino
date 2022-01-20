@@ -1,5 +1,5 @@
-#include <ESP8266WiFi.h>
-#include <ThingSpeak.h>
+// This is just a test file in order to test the connection
+// Made by Victor Leweke
 
 void setup() {
   Serial.begin(115200);
