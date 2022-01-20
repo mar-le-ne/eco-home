@@ -1,9 +1,18 @@
+/*
+    CREDITS:
+    Written by August Valentin, student ID: S194802
+*/
+
 window.onload = function () {
     // '$' in the code is an alias for the global jQuery object. it is used to access the jQuery members.
     // can (possibly) use 'jQuery' instead, if desired.
+    
+    // Set constants
     const port = "8081";
     const protocol = "http://"
     
+    // Set aliases for the divNames, to avoid typos later on.
+    // prefaced with '#' to indiciate a div to jQuery.
     const buttonDivName = "#buttonLeftHouse";
     const fridgeDivName = "#fridgeOpen";
     const lightOnDivName = "#lightOn";
@@ -13,20 +22,37 @@ window.onload = function () {
     const faucetDivName = "#faucetOn"
     const showerDivName = "#showerRunning";
     const showerTimeDivName = "#showerTime"
-    const dataTags = ["HOME", "FRIDGE", "LIGHT", "WAIT_TIME", "FORGOT_LIGHT", "LIGHT_TIME",  "LIGHT_AUTO", "FAUCET", "SHOWER", "SHOWER_TIME"]; // names used in the server's stored JSON.
-    const tagToDiv = {"HOME" : buttonDivName, "FRIDGE" : fridgeDivName, 
-        "LIGHT" : lightOnDivName, "WAIT_TIME" : waitTimeDivName, "FORGOT_LIGHT" : forgotLightDivName, "LIGHT_TIME": lightTimeDivName, 
-        "FAUCET" : faucetDivName, "SHOWER" :  showerDivName, "SHOWER_TIME" : showerTimeDivName} // preface with '#' to indiciate a div to jQuery.
-    const removedTags = ["LIGHT", "LIGHT_TIME", "LIGHT_AUTO"]
+    // set aliases for the tags, to avoid typos later on. The tags are strings used in the server's stored JSON.
+    const homeTag = "HOME";
+    const fridgeTag = "FRIDGE";
+    const lightTag = "LIGHT";
+    const waitTimeTag = "WAIT_TIME";
+    const forgotLightTag = "FORGOT_LIGHT";
+    const lightTimeTag = "LIGHT_TIME";
+    const lightAutoTag = "LIGHT_AUTO";
+    const faucetTag = "FAUCET";
+    const showerTag = "SHOWER";
+    const showerTimeTag = "SHOWER_TIME";
 
-
+    // List of tags of the server. It's utilized to check if incoming data from GET is valid. 
+    const dataTags = [homeTag, fridgeTag, 
+        lightTag, waitTimeTag, forgotLightTag, lightTimeTag, lightAutoTag, 
+        faucetTag, showerTag, showerTimeTag];
+    const tagToDiv = {homeTag : buttonDivName, fridgeTag : fridgeDivName, 
+        lightTag : lightOnDivName, waitTimeTag : waitTimeDivName, forgotLightTag : forgotLightDivName, lightTimeTag: lightTimeDivName, 
+        faucetTag : faucetDivName, showerTag :  showerDivName, showerTimeTag : showerTimeDivName};
+    // List of deprecated (but valid) tags.
+    const removedTags = [lightTag, lightTimeTag, lightAutoTag]
 
     // support functions:
-    function gebi(id) { // alias for "get element by id":
+    // alias for "get element by id":
+    function gebi(id) { 
         return document.getElementById(id);
     }
 
-    function stringToBoolean (string) { // source: https://stackoverflow.com/a/1414175
+    // parse string as Boolean.
+    function parseBoolean (string) { 
+        // source: https://stackoverflow.com/a/1414175
         switch(string.toLowerCase().trim()){
             case "true": 
             case "yes": 
@@ -46,19 +72,22 @@ window.onload = function () {
 
 
     function fetchData() {
+        // function for retrieving all the data stored in the server.
         console.log("fetching data.");
-        const apiExtension = "/API/ALL";
+        const apiExtension = "/API" + "/ALL";
         let urlAPI = url + apiExtension;
-        //console.log(urlAPI);
-        let ajaxReq = $.get(urlAPI, function(data) {
-        });
+        let ajaxReq = $.get(urlAPI, function(data) {} ); // sends an async request to the server
+        
         return ajaxReq; // return the ajax-request object.
     }
 
+
+    // function for updating a div "divName" on the webpage with a value "value".
     function updateDiv(divName, value) {
         $(divName).html(value); 
     }
     
+
     let atHome = true; // bool relating to whether user is home or not. updated on fetch.
     let waitTime = 1; // integer for how long the arduino should wait before turning off the light.
     function setPageData(data) { // data is a JSON object 
@@ -84,16 +113,17 @@ window.onload = function () {
     function wrapPageDataSpecifics(key, value) {
         if (dataTags.includes(key)) {
             switch(key) {
-                case "HOME": 
-                    atHome = stringToBoolean(value);
+                case homeTag: 
+                    atHome = parseBoolean(value);
                     updateButtonText();
                     break;
-                case "FRIDGE":
-                    let isFridgeOpen = stringToBoolean(value);
+                case fridgeTag:
+                    let isFridgeOpen = parseBoolean(value);
                     updateFridgeText(isFridgeOpen);
                     break;
-                /*case "LIGHT": // Old cases for extra features related to the Lighting:
-                    let isLightOn = stringToBoolean(value);
+                /* cases for deprecated features related to the Lighting:
+                case "LIGHT": 
+                    let isLightOn = parseBoolean(value);
                     updateLightOnText(isLightOn);   
                     break;
                 case "LIGHT_TIME":
@@ -102,24 +132,25 @@ window.onload = function () {
                     break;
                 case "LIGHT_AUTO":
                     // the webpage doesn't really care about this value.
-                    break; */
-                case "WAIT_TIME":
+                    break; 
+                */
+                case waitTimeTag:
                     waitTime = parseInt(value);
                     updateWaitTimeText(waitTime);   
                     break;
-                case "FORGOT_LIGHT":
-                    let hasForgottenLight = stringToBoolean(value);
+                case forgotLightTag:
+                    let hasForgottenLight = parseBoolean(value);
                     updateForgotLightText(hasForgottenLight );   
                     break;
-                case "FAUCET":
-                    let isFaucetRunning = stringToBoolean(value);
+                case faucetTag:
+                    let isFaucetRunning = parseBoolean(value);
                     updateFaucetRunningText(isFaucetRunning);   
                     break;
-                case "SHOWER":
-                    let isShowerRunning = stringToBoolean(value);
+                case showerTag:
+                    let isShowerRunning = parseBoolean(value);
                     updateShowerRunningText(isShowerRunning);   
                     break;
-                case "SHOWER_TIME":
+                case showerTimeTag:
                     let showerTime = value;
                     updateShowerTimeText(showerTime);   
                     break;
@@ -143,17 +174,19 @@ window.onload = function () {
         }
     } 
 
+    // Functions to wrap the POST requests user interactions.
+    // POST of the Home status: is user home, or have they left?
     function postHomeStatus(isHome) { 
-        const path = "HOME";
+        const path = homeTag;
         const apiExtension = "/API/" + path;
         let urlAPI = url + apiExtension;
-        let isLeaving = !isHome; // isLeaving should be a 1 if user is leaving the house (isHome), 0 if user is returning. 
-        let ajaxReq = $.post(urlAPI, path + "=" + isLeaving); // send a post request with the logic
+        let isLeaving = !isHome; // isLeaving should be a 1 if user is leaving the house, 0 if user is returning. This is boolean negation of isHome.
+        let ajaxReq = $.post(urlAPI, path + "=" + isLeaving); // send a post request with the value
         return ajaxReq;
     }
 
     function postWaitTime(waitTimeArg) { // send the waiting time argument, an integer representing how long the arduino should wait, to the server.
-        const path = "WAIT_TIME"
+        const path = waitTimeTag;
         const apiExtension = "/API/" + path;
         let urlAPI = url + apiExtension;
         waitTimeArg = Math.ceil(waitTimeArg) // make sure the value is an integer (not a decimal value or bool).
@@ -164,6 +197,7 @@ window.onload = function () {
     
     // Specific functions for handling each div.
     // Could probably be a lot cleaner, since they all function the same way with a few exceptions (lightTime, showerTime).
+    // and we should also store the messages in a better format, so it's easier to manage.
     function updateButtonText() {
         let divName = buttonDivName;
         let buttonText = atHome ? ("<b> I've left the house</b>.") : ("<b> I've returned</b>.");
@@ -218,14 +252,16 @@ window.onload = function () {
         updateDiv(divName, divText)
     }
 
+    // When we have loaded the ip file, call this function:
     function onIPtextLoaded(ip_text) {
+        // get the IP from the file, assign it to the variables.
         ip = ip_text.trim();
         url = protocol + ip + ":" + port
         console.log("URL IS: " + url);
 
-        // Call the function on page-load, and then poll again continuously by interval:
+        // Update the page with current server data, and then poll again continuously by interval:
         fetchAndSetData();
-        const pollInterval = 15 * 1000; // 15 seconds.
+        const pollInterval = 15 * 1000; // 15 * 1000milliseconds = 15 seconds.
         setInterval( fetchAndSetData, pollInterval);
 
         // event listener for the "Left home" & "returned" button: 
@@ -236,13 +272,15 @@ window.onload = function () {
             if (atHome === stallMsg) { // If user clicks on the button before it has finished sending and retrieving data from the server.
                 alert("Still posting data. Check your connection to the server if this continues.");
             }
-            else {
-                updateDiv(divName, "Initiating procedures...")
+            else { // if we are not waiting for the response from the server:
+                // set new text on the button
+                // (should only be visible for a fraction of a second before it updates)
+                updateDiv(divName, "Initiating procedures...");  
                 $.when(postHomeStatus(atHome)).done(function() { // send post request and, when its done:
-                    fetchAndSetData(); // fetch data, and update the page.          
-                })
+                    fetchAndSetData(); // fetch data, and update the page (also assigning the atHome value to data from the server.)         
+                });
             }
-            atHome = stallMsg;
+            atHome = stallMsg; // assign the atHome value to this, so next time we click on it before the website has updated, it will give us a warning
         });
 
 
@@ -250,15 +288,15 @@ window.onload = function () {
         gebi("waitTimeRange").addEventListener("change", function (event) {
             waitTime = event.currentTarget.value;
             updateWaitTimeText(waitTime);
-            $.when(postWaitTime(waitTime)).done(function() { // send post request and, when its done:
+            $.when(postWaitTime(waitTime)).done(function() { // send POST request and, when its done:
                 fetchAndSetData() // fetch data, and update the page.
             })            
         });
     }
     
-    let ip = "IP not loaded yet" // IP, insert using method from documentation.
+    let ip = "IP not loaded yet - IP" // global IP variable. Follow the guide document to set it up.
     let url =  "IP not loaded yet - URL" ; 
-    fetch('ip.txt')
+    fetch('ip.txt') // fetch the IP file 
         .then(response => response.text())
             .then(text => onIPtextLoaded(text));
 

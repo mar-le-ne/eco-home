@@ -1,6 +1,12 @@
 
 #include "client_lib.h" // include the library for communication with our server.
 
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+// Fridge.ino is written by August Valentin, student ID: S194802                                            !
+// If the function isn't credited with a source (such as a stackoverflow link), it's written by me (August) !
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+
 // Pins:
 const byte ledPin = D2;
 const byte buzzerPin = D5;

@@ -1,5 +1,10 @@
 # This is a Python script for running the Server of EcoHome.
+"""
+    To set this server up properly, please follow the guide.
+    CREDITS:
+    Written by August Valentin, student ID: S194802
 
+"""
 
 from http.server import HTTPServer, BaseHTTPRequestHandler  # to run the server
 from json import dumps  # To format strings into json format.
@@ -7,6 +12,7 @@ from time import time  # To get the current time
 
 
 def read_IP_from_file():
+    """ Reads the ip from the ip.txt file in 'webpage_lib' folder. """
     ip_file = "webpage_lib/ip.txt"
     with open(ip_file, "r") as f:
         contents = f.read()
@@ -31,7 +37,8 @@ SHOWER = "SHOWER"
 SHOWER_TIME = "SHOWER_TIME"
 LIGHT_AUTO = "LIGHT_AUTO"
 
-# Data sent and accessed with the API:
+# Dictionary for all data stored on the server.
+# This data sent & accessed with GET & POST requests:
 stored_data = {HOME: "true",  # POST from webpage, GET from arduino
                FRIDGE: "false",  # POST from arduino
                LIGHT: "false",  # POST from arduino
@@ -43,26 +50,30 @@ stored_data = {HOME: "true",  # POST from webpage, GET from arduino
                SHOWER_TIME: "0",  # GET from webpage
                LIGHT_AUTO: "false"  # POST from arduino when light shuts down automatically.
                }
-# Data the server handles.
+
+# This data is for internal server use. Stores "when" the event was triggered. For example when the shower begun.
 eventDates = {
     "SHOWER": 0,
-    "LIGHT_AUTO": 0
+    "LIGHT_AUTO": 0  # Deprecated.
 }
 
+# relative path to the folder with all the webpage files
 document_path = "webpage_lib/"
 
 
 def secondsToMinutes(sec):
+    """ Function for converting a number (int, float) representing number of seconds, to minutes (rounded down). """
     minute = 60.0
     return round(sec / minute, 2)
 
 
 def is_element_valid(element):
-    print("POST is valid")
+    """ Function to check if the element (received 'tag' string) is a key in the server data. """
     return element in stored_data.keys()
 
 
-def str2bool(input_str):  # Convert a string to matching boolean. source: https://stackoverflow.com/a/1414175
+def str2bool(input_str):
+    """ Convert a string to matching boolean. source: https://stackoverflow.com/a/1414175"""
     input_str = input_str.lower().strip()
     switcher = {  # home-brewed Python switch-statement.
         # Source: https://jaxenter.com/implement-switch-case-statement-python-138315.html
@@ -81,31 +92,45 @@ def str2bool(input_str):  # Convert a string to matching boolean. source: https:
         return False
 
     switch_result = switcher.get(input_str, default_case)
-    if (switch_result == default_case):
-        default_case(input_str)
+    # Have to check this way,
+    # because the default case should *only* be called if key couldn't be found in the dict.
+    if switch_result == default_case:
+        return default_case(input_str)
     else:
         return switch_result
 
 
 class Payload:
+    """ Class for storing the 'element' and 'result' of a POST request.
+        For example: "HOME=true" is stored as element="HOME",result="true"
+    """
+
     def __init__(self, element, result):
         self.element = element
         self.result = result
 
 
+# Functions to handle specific POST requests in a certain way.
 def handleShowerPOST(result):
+    """ Handles the shower POST request. Keeps track of how long the user showers. """
+    # Deprecated functionality: Stored the cumulative amount of time spent showering.
+    # Changed to reset between each shower.
+
     is_being_switched_on = str2bool(result)
     was_switched_on = str2bool(stored_data[SHOWER])
     stored_data[SHOWER] = result
     if is_being_switched_on and not was_switched_on:  # if SHOWER turns on and was previously turned off:
-        eventDates["SHOWER"] = time()
+        eventDates["SHOWER"] = int(time())
     elif was_switched_on and not is_being_switched_on:  # if SHOWER turns off and was previously turned on.
-        # current_shower_time = float(stored_data[SHOWER_TIME])  # don't add the previous saved time.
-        stored_data[SHOWER_TIME] = str(secondsToMinutes(time() - eventDates[SHOWER]))  # + current_shower_time # same as above.
+        # store the amount of time showered in the most recent shower.
+        stored_data[SHOWER_TIME] = str(secondsToMinutes(time() - eventDates[SHOWER]))
         eventDates[SHOWER] = 0
 
 
 def handleLightAutoPOST(result):
+    """ DEPRECATED.
+        Similarly to shower POST requests, keeps track of the time.
+    """
     is_light_auto_switched_off = str2bool(result)
     if is_light_auto_switched_off:  # if LIGHT is automatically turned off on
         eventDates["LIGHT_AUTO"] = int(time())
@@ -113,6 +138,9 @@ def handleLightAutoPOST(result):
 
 
 def handleLightPOST(result):
+    """ DEPRECATED.
+        Works in tandem with LightAuto POST requests, to keep track of time.
+    """
     stored_data["LIGHT"] = result  # Save the current status of light
     # and if it's turned on after being automatically turned off,
     # store the amount of time the light was turned off.
@@ -129,6 +157,10 @@ def handleLightPOST(result):
 
 
 def handleWaitTimePost(result):
+    """ Handles the shower WAIT_TIME request.
+        converts the string to int, and ensures it is within the imposed limits (between 1 and 15 minutes).
+        Then converts back to string when storing it.
+    """
     #  ensure the wait time posted is between some predefined limits
     clamp_values = [1, 15]
     min_wait_time = min(clamp_values)
@@ -140,10 +172,16 @@ def handleWaitTimePost(result):
 
 
 def handleDefaultPOST(element, result):
+    """ Handle the POST requests that do not have special circumstances.
+        Just assigns the payload as it is received.
+    """
     stored_data[element] = result
 
 
 def handleValidPOST(server_o, payload):
+    """ Wrapping function to handle a valid POST requests,
+        choosing the "correct" way to handle the POST request.
+    """
     element = payload.element
     result = payload.result
     # Special POST cases:
@@ -157,11 +195,11 @@ def handleValidPOST(server_o, payload):
         handleDefaultPOST(element, result)
     else:  # The special cases only needs 1 parameter
         handle_function(result)
-
     # Successful POST request.
     # Response:
-    server_o.send_response(200)
-    # Response:
+    server_o.send_response(200)  # Tell the client that the request was successful.
+    # If I understand the HTTP specifications correctly, it is optional for the server
+    # to respond with a payload to a POST request
     content = "200, server handshake"
     server_o.send_header("Content-Length", f"{len(content)}")
     server_o.send_header("Content-type", "text/html")
@@ -170,8 +208,13 @@ def handleValidPOST(server_o, payload):
 
 
 def handleInvalidPOST(server_o):
+    """ Handles POST requests which are deemed invalid.
+        Send response code 403, "Forbidden element".
+        Not completely sure if its 100% correct,
+        but we use it as a catch-all for invalid POST requests.
+    """
     # Response:
-    server_o.send_response(403)
+    server_o.send_response(403)  #
     content = "403, server handshake"
     server_o.send_header("Content-Length", f"{len(content)}")
     server_o.send_header("Content-type", "text/html")
@@ -179,29 +222,28 @@ def handleInvalidPOST(server_o):
     server_o.wfile.write(bytes(content, 'utf-8'))
 
 
-def cleanGETpayload(payload):
-    result = payload.strip()
-    try:
-        result = int(result)
-    except ValueError:
-        result = str2bool(result)
-    return result
-
-
 class Serv(BaseHTTPRequestHandler):
+    """ Class for running the server.
+        Using the python http.server library, it inherits from the BaseHTTPRequestHandler class."""
     # class variable:
     API_path = "API"
 
     def do_POST(self):
+        """ Function called when the server receives a POST request. Handles it as defined by us.
+            The name is important: the server functions by calling do_<METHOD_NAME> upon receiving a request,
+            where METHOD_NAME is specified by the request.
+        """
         print(f"POST: path is: {self.path}")
         path_list = self.path.split("/")
-        if path_list[1].strip() == Serv.API_path:
+        if path_list[1].strip() == Serv.API_path:  # check if API was accessed
+            # Attempt to read the length of the content, with the "content_length" header:
             try:
                 content_length = int(self.headers['Content-Length'])
-            except TypeError:
+            except TypeError:  # If no "content_length" header was found
                 content_length = 0
-            file_content = self.rfile.read(content_length)
 
+            # read the content of the POST request (containing the payload)
+            file_content = self.rfile.read(content_length)
             file_content = file_content.decode("UTF-8")
             print(f"POST payload contains: {file_content}")
             if "=" in file_content:
@@ -209,10 +251,11 @@ class Serv(BaseHTTPRequestHandler):
                 element = parsed_data[0].upper()
                 result = parsed_data[1]
                 if is_element_valid(element):
-
+                    print("POST is valid")
                     payload = Payload(element, result)
+                    # Handle the valid POST request:
                     handleValidPOST(self, payload)
-                else:  #
+                else:  # if element was not considered valid:
                     print(f"{element} is invalid and {result} will not be stored")
                     handleInvalidPOST(self)
 
@@ -225,7 +268,10 @@ class Serv(BaseHTTPRequestHandler):
             handleInvalidPOST(self)
 
     def do_GET(self):
-        file_to_open = None
+        """ Function called when the server receives a GET request. Handles it as defined by us.
+                    As with do_POST, the naming of the function is important.
+        """
+        file_to_open = None  # assign a placeholder value for the variable, so we can check if its been modified later on.
         file_ext = self.path.split(".")  # file extension of the requested file. if no file-extension is found,
         # assume either main page is requested, or some text-values.
         if len(file_ext) > 1:
@@ -234,46 +280,41 @@ class Serv(BaseHTTPRequestHandler):
         else:
             file_ext = "html"  # use None instead?
         path_list = self.path.split("/")
-        if self.path == '/':
+        if self.path == '/':  # webpage is retrieved when no path is specified.
             self.path = "webpage.html"
             self.send_response(200)
-        elif path_list[1] == "API":  # "/API"...
+        elif path_list[1] == "API":  # path is "/API"...
             print(f"API accessed. Path list is: {path_list}")
-            if len(path_list) > 1 and path_list[2] != "":  # TODO: PROBLEM!!
+            if len(path_list) > 1 and path_list[2] != "":  # there needs to be an extra path after "/API"
                 element = path_list[-1].upper()  # last part of the path.
-                if element == "ALL":
+                if element == "ALL":  # when we want to retrieve all the data stored in the server.
                     self.send_response(200)
                     file_to_open = dumps(stored_data)
-                elif is_element_valid(element):
+                elif is_element_valid(element):  # when we want to retrieve a specific value from the server.
                     self.send_response(200)
-                    print("test")
-                    # TODO: This is the problem area
-                    # payload = cleanGETpayload(stored_data[element])
-                    json_data = stored_data[element]  # dumps(payload)
-
+                    json_data = stored_data[element]
                     print(f"GET data is: {json_data}")
                     file_to_open = json_data
                     self.send_header("Content-type", "text/plain")
-
-                else:
+                else:  # if element was deemed invalid.
                     print(f"{element} is invalid and cannot be accessed")
                     self.send_response(404)
-            else:
+            else:  # If the path was == "/API/"
                 print(f"GET request is invalid")
                 self.send_response(404)
             print(f"loaded data is {file_to_open}")
-        else:  # for GET requests to documents such as updatePage.js or jQuery.js
+        else:  # if GET request refers to text-documents such as updatePage.js, jQuery.js, ip.txt.
+            # example: "http://<ip>:8081/updatePage.js"
             self.path = self.path.split("HTTP/1.1")[0]
             self.send_response(200)
-        try:
+        try:  # Try to open the file and send it.
             if not file_to_open:
                 file_to_open = open(document_path + self.path).read()
             # self.send_header("Content-type", "text/html")
             self.end_headers()
             self.wfile.write(bytes(file_to_open, 'utf-8'))
-        except Exception as e:
-            file_to_open = "File not found"
-            print(f"exception: {e}")
+        except Exception as err: # case of failure, give response code 403.
+            print(f"exception: {err}")
             self.send_response(403)
             # Response:
             content = "403, server handshake"
@@ -284,33 +325,26 @@ class Serv(BaseHTTPRequestHandler):
         print(f"path is: {self.path}")
 
 
-def load_binary(filename):
-    with open(filename, 'rb') as file_handle:
-        return file_handle.read()
-
-
+# Main script:
 if __name__ == '__main__':
     try:
+        # read the ip from the specified text file.
         IP = read_IP_from_file()
         print(f"IP loaded from file is: {IP}")
+        # Create an instance of our server-class with our parameters.
         httpd = HTTPServer((IP, port), Serv)
         print("SERVER BEGINS")
+        # Start the server "forever", or until you force-exit the program (ctrl+c in terminal).
         httpd.serve_forever()
     except Exception as e:
+        # Handles raised exceptions.
         if e == KeyboardInterrupt:
+            # If the exception was due to keyboard interrupt (ctrl + c).
             print("Server was turned off")
         else:
             print("There's probably an issue with the ip.txt file")
             print(f"error is: {e}")
             IP = "Check the ip.txt file"
 
-    # Server can be shutdown using Ctrl + C,
-    # Alternatively, some IDEs have a red square for stopping functions.
-
-""" Old code:
-    host_name = gethostname()
-    local_ip = gethostbyname("localhost") # host_name
-    print(f"hostname is {host_name}")
-    print(f"PC's Local IP Is: {local_ip}")
-    # local_ip = "localhost
-"""
+    # Server can be shutdown using Ctrl + c,
+    # Alternatively, some IDEs have a red square button for stopping functions, somewhere.

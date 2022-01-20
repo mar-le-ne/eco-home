@@ -1,8 +1,12 @@
 #include "client_lib.h"
 
-// This sketch is purely for testing the wrapping functions of client_lib.h
-// it will run the POSTrequests and the GETrequests, and basically use all of the functions listed in the header.
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+// client_demo.ino is written by August Valentin, student ID: S194802                                            !
+// If the function isn't credited with a source (such as a stackoverflow link), it's written by me (August) !
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
+// This sketch is purely for testing the wrapped functions of client_lib.h
+// it will run the POSTrequests and the GETrequests, and that way, test all of the functions listed in the header file.
 
 void setup() {
   Serial.begin(115200);
@@ -12,12 +16,11 @@ void setup() {
   String wPass = "august1234";
   String IP = "192.168.152.233";
   setupWIFI(wName, wPass, IP);
-
 }
 
 
 int mainDelay = 5 * 1000;
-int POSTdelay = 35 * 1000;
+int POSTdelay = 25 * 1000;
 void testPOSTfunction( void (*POSTfunc)(bool) ) {
   // The post functions all have the same signature: return type of void, parameter of Bool.
   // So it's easy to test them all;
