@@ -1,5 +1,8 @@
+// This is just a test file in order to test the connection
+// Made by Victor Leweke
+
 #include <SoftwareSerial.h>
-SoftwareSerial espSerial(5, 6);
+SoftwareSerial espSerial(0, 1);
 
 const byte pot = A0;
 
