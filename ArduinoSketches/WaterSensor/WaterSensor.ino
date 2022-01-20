@@ -8,7 +8,7 @@
  * 
  * created 12/01/2022
  * by Victor Leweke
- * last modified 18/01/2022
+ * last modified 20/01/2022
  */
 
 #include "client_lib.h"
@@ -35,7 +35,7 @@ void setup() {
 }
 
 void loop() {
-  int waterLevel = getLevel();    // Get the percentage of submerged sensor
+  int waterLevel = getLevel();    // Get the value of sensor
   Serial.print("Water level: ");
   Serial.println(waterLevel);     // Print on serial monitor  
   delay(1000);
