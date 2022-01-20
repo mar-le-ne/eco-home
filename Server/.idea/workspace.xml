@@ -2,11 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="6d91908f-83ba-454b-aed1-3ef0bebf0f6d" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/../ArduinoSketches/Fridge/client_lib.h" beforeDir="false" afterPath="$PROJECT_DIR$/../ArduinoSketches/Fridge/client_lib.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Server.py" beforeDir="false" afterPath="$PROJECT_DIR$/Server.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/webpage_lib/updatePage.js" beforeDir="false" afterPath="$PROJECT_DIR$/webpage_lib/updatePage.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/webpage_lib/webpage.html" beforeDir="false" afterPath="$PROJECT_DIR$/webpage_lib/webpage.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
