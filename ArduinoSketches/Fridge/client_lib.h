@@ -25,12 +25,11 @@ const String api_extension = "/API";
 
 // function for checking if the ESP8266 is connected to the WiFi.
 bool isWifiConnected() {
-  if (WiFi.status() == WL_CONNECTED) {
-    return true;
+  if (WiFi.status() != WL_CONNECTED) {
+    return false;
   }
   else {
-    //Serial.println("You are not connected to the WiFi");
-    return false;
+    return true;
   }
 }
 
@@ -46,19 +45,19 @@ void setupWIFI(String WiFiName, String WiFiPassword, String inputIP) {
   WiFi.begin(WiFiName.c_str(), WiFiPassword.c_str());
   Serial.print("Connecting ...");
 
-  const int maxAttempts = 10;
+  const int maxAttempts = 20;
   // Attempt to connect to the WiFI, max 10 attempts.
   for (int attempts = 0; attempts < maxAttempts; attempts++) { // try to connect to the WiFi (maxAttempts) number of times.
     delay(500);
     Serial.print(".");
-    if (isWifiConnected) {
+    if (isWifiConnected()) {
       Serial.println("");
       Serial.print("WiFi connected to: "); Serial.println(WiFi.SSID());
       break; // if WiFi connects, break the loop.
     }
   }
-  if (!isWifiConnected) { // Send a message to the Serial terminal if connection wasn't possible.
-    Serial.print("WiFi could not connect to: "); Serial.println(WiFi.SSID());
+  if (!isWifiConnected()) { // Send a message to the Serial terminal if connection wasn't possible.
+    Serial.println(""); Serial.print("WiFi could not connect to: "); Serial.println(WiFi.SSID());
   }
 }
 

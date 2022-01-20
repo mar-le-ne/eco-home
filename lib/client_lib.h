@@ -284,7 +284,6 @@ bool GEThome() {
   String target = HOME;
   String destination = "";
   bool requestSuccess = GETreq(target, &destination);
-  Serial.print("GEThome successful?: "); Serial.println(requestSuccess);
   if (!requestSuccess) {
     badRequest(target);
   }
