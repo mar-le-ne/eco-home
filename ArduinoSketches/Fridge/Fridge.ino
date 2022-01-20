@@ -92,7 +92,7 @@ void fridgeWrapper(byte magPin) {
 
   /* If the fridge has been continuously open for some specific amount of time,
       We want to turn on the buzzer, the LED, and send a POST request to the server.
-      A drawing of the logicflow can be found in "ArduinoSketches/Fridge/logic_flow.png".
+      A drawing of the logicflow can be found in "ArduinoSketches/Fridge/fridge_logic_flow.png".
   */
   
   bool isFridgeOpen = checkFridgeOpen(magPin); // checks the magnet sensor. 
