@@ -13,7 +13,7 @@ const byte buzzerPin = D5;
 
 // Hall sensor used is WPSE313 (from WHADDA).
 // Pin layout: When looking at the module's LED, left = GND, middle = +5V (3.3V also works, but possibly a worse detection range), right = digital signal.
-const byte magPin = D6;
+const byte magPin = D7;
 
 void setup() {
   // Set baud-rate of Serial connection(?)
@@ -45,7 +45,7 @@ int mainDelay = 250; // main loop is done every 0.25 seconds.
 bool checkFridgeOpen(byte magPin) {
   // uses the magnet detector.
   // Return true if the magnet is not detected, else false.
-  // In our context, it means: true when fridge door is open, else false.
+  // In our context, it means: true when fridge door is open, else false.'
   bool isFridgeOpen = digitalRead(magPin);
   return isFridgeOpen;
 }
@@ -97,6 +97,7 @@ void fridgeWrapper(byte magPin) {
   
   bool isFridgeOpen = checkFridgeOpen(magPin); // checks the magnet sensor. 
   if (!isFridgeOpen) { // If fridge is closed
+    Serial.println("test");
     if (alarmWasTriggered) { 
       fridgeAlarm(false); // Fridge was closed after having previously triggered the alarm. So now send the opposite signals.
     }
