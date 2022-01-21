@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="6d91908f-83ba-454b-aed1-3ef0bebf0f6d" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/../ArduinoSketches/client_demo/client_demo.ino" beforeDir="false" afterPath="$PROJECT_DIR$/../ArduinoSketches/client_demo/client_demo.ino" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />

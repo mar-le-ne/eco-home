@@ -11,10 +11,11 @@
 void setup() {
   Serial.begin(115200);
   Serial.println("");
-  
-  String wName = "farligt wifi";
-  String wPass = "august1234";
-  String IP = "192.168.152.233";
+
+  // The following 3 values should be replaced, corresponding to your own situation. Follow the guide document.
+  String wName = "WifiName";
+  String wPass = "WifiPass";
+  String IP = "LOCAL_IP";
   setupWIFI(wName, wPass, IP);
 }
 
